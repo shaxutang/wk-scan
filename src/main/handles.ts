@@ -138,7 +138,9 @@ export function expose(app: Electron.App) {
         scanObject,
       })
       const chain = scanDB.chain.get('scanList')
-      const scanExists = chain.some((scan) => scan.qrcode === data.qrcode)
+      const scanExists = chain
+        .some((scan) => scan.qrcode === data.qrcode)
+        .value()
       if (scanExists) {
         return R.duplicate().setMessage('当前扫描的条码重复!')
       }
