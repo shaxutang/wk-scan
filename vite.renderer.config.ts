@@ -10,4 +10,18 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          antd: ['antd'],
+          lodash: ['lodash'],
+          pinyin: ['pinyin'],
+          react: ['react'],
+          reactDom: ['react-dom'],
+          reactRouterDom: ['react-router-dom'],
+        },
+      },
+    },
+  },
 })
