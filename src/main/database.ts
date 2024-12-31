@@ -37,17 +37,12 @@ export class Database {
     this.loadBaseDB()
   }
 
-  getScanDB(scanConfig: DatabaseScanConfig) {
-    if (
-      this.scanDB &&
-      this.scanConfig &&
-      this.scanConfig.scanDate === scanConfig.scanDate &&
-      this.scanConfig.scanObject.id === scanConfig.scanObject.id
-    ) {
-      return this.scanDB
-    }
+  loadScanDB(scanConfig?: DatabaseScanConfig) {
+    scanConfig = scanConfig ?? this.scanConfig
 
-    this.scanConfig = scanConfig
+    if (!scanConfig) {
+      throw new Error('scanConfig is required')
+    }
 
     const scanPath = join(
       wkrc.get().workDir,
@@ -71,7 +66,6 @@ export class Database {
     }
 
     this.scanDB = new LowWithLodash<ScanDBType>(new JSONFile(scanDBPath), data)
-    return this.scanDB
   }
 
   loadBaseDB() {
@@ -94,8 +88,29 @@ export class Database {
     this.baseDB = new LowWithLodash(new JSONFile(baseDBPath), data)
   }
 
+  getScanDB(scanConfig: DatabaseScanConfig) {
+    if (
+      this.scanDB &&
+      this.scanConfig &&
+      this.scanConfig.scanDate === scanConfig.scanDate &&
+      this.scanConfig.scanObject.id === scanConfig.scanObject.id
+    ) {
+      return this.scanDB
+    }
+
+    this.scanConfig = scanConfig
+
+    this.loadScanDB(scanConfig)
+
+    return this.scanDB
+  }
+
   getBaseDB() {
     return this.baseDB
+  }
+
+  getScanConfig() {
+    return this.scanConfig
   }
 }
 

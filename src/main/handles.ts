@@ -73,6 +73,7 @@ export function expose(app: Electron.App) {
       return R.error().setMessage('扫码对象不存在')
     }
     scanObjectsChain.remove((sb) => sb.id === id).commit()
+    database.getBaseDB().write()
     return R.success()
   })
 
@@ -241,7 +242,7 @@ export function expose(app: Electron.App) {
       const data = dataDirs.map((dir) => {
         return {
           date: dayjs(dir).format('YYYY-MM-DD'),
-          name: `${scanObject.scanObjectName}-${dayjs(dir).format('YYYY-MM-DD')}`,
+          name: dayjs(dir).format('YYYY-MM-DD'),
         }
       })
       return R.success<ScanHistory[]>().setData(data)
@@ -300,6 +301,7 @@ export function expose(app: Electron.App) {
   ipcMain.handle(HandleType.SAVE_WKRC, async (event, w: WkrcType) => {
     wkrc.set(w)
     database.loadBaseDB()
+    database.loadScanDB()
     return R.success()
   })
 }

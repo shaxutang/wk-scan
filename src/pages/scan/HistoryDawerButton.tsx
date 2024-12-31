@@ -46,7 +46,7 @@ const HistoryDawerButton: React.FC = () => {
             )
             if (!hasNow) {
               list.push({
-                name: `${scanStore.scanStoreData.scanObject.scanObjectName}-${dayjs().format('YYYY-MM-DD')}`,
+                name: dayjs().format('YYYY-MM-DD'),
                 date: dayjs(),
               })
             }

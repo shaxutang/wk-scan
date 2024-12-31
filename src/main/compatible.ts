@@ -1,9 +1,10 @@
 import { ScanObject, ScanRule } from '@/types'
 import dayjs from '@/utils/dayjs'
-import fs from 'fs'
+import fs, { mkdirSync } from 'fs'
 import os from 'os'
-import { basename, join } from 'path'
+import { join } from 'path'
 import { BaseDBType, ScanDBType } from './database'
+import { scanObjects, scanRules } from './default'
 
 export interface DataType {
   productName: string
@@ -32,6 +33,11 @@ const compatibleScanData = (product: Product) => {
   if (!fs.existsSync(oldPath)) {
     return
   }
+
+  if (!fs.existsSync(newPath)) {
+    mkdirSync(newPath, { recursive: true })
+  }
+
   const oldDirs = fs.readdirSync(oldPath)
   const newDirs = fs.readdirSync(newPath)
 
@@ -42,7 +48,7 @@ const compatibleScanData = (product: Product) => {
         (JSON.parse(
           fs.readFileSync(join(oldPath, dir, 'data.json'), 'utf-8'),
         ) as DataType[]) ?? []
-      if (newDirs.some((newDir) => basename(newDir) !== basename(dir))) {
+      if (!newDirs.includes(dir)) {
         const oldData = readOldData.map((data, index) => ({
           id: index + 1,
           scanObjectName: product.productName,
@@ -91,50 +97,79 @@ const renameOldDir = () => {
 }
 
 export default function () {
+  const basePath = join(BASE_PATH, 'wk/wk-scan/data')
   const productPath = join(BASE_PATH, 'wk/qr-scan/product')
 
   if (!fs.existsSync(productPath)) {
     return
   }
-  const products =
-    JSON.parse(fs.readFileSync(join(productPath, 'products.json'), 'utf-8')) ??
-    []
 
-  const newBaseData = JSON.parse(
-    fs.readFileSync(join(BASE_PATH, 'wk/wk-scan/data/base.json'), 'utf-8'),
-  ) as BaseDBType
+  if (!fs.existsSync(basePath)) {
+    mkdirSync(basePath, { recursive: true })
+  }
 
-  products.forEach((product: Product) => {
-    const scanObjectExists = newBaseData.scanObjects.some(
-      (scanObject: ScanObject) =>
-        scanObject.scanObjectValue === product.productValue,
-    )
-    if (!scanObjectExists) {
-      newBaseData.scanObjects.push({
-        id: newBaseData.scanObjects.length + 1,
-        scanObjectName: product.productName,
-        scanObjectValue: product.productValue,
-      })
+  const baseFilePath = join(basePath, 'base.json')
+
+  let newBaseData: BaseDBType
+  let products: Product[]
+  let rules: Rule[]
+
+  if (!fs.existsSync(baseFilePath)) {
+    newBaseData = {
+      scanObjects,
+      scanRules,
     }
-    compatibleScanData(product)
-  })
+    fs.writeFileSync(baseFilePath, JSON.stringify(newBaseData))
+  } else {
+    newBaseData = JSON.parse(
+      fs.readFileSync(baseFilePath, 'utf-8'),
+    ) as BaseDBType
+  }
 
-  const rules =
-    JSON.parse(fs.readFileSync(join(productPath, 'rules.json'), 'utf-8')) ?? []
+  const productsPath = join(productPath, 'products.json')
+  const rulesPath = join(productPath, 'rules.json')
 
-  rules.forEach((rule: Rule) => {
-    const scanRuleExists = newBaseData.scanRules.some(
-      (scanRule: ScanRule) => scanRule.scanRuleValue === rule.ruleValue,
-    )
-    if (!scanRuleExists) {
-      newBaseData.scanRules.push({
-        id: newBaseData.scanRules.length + 1,
-        scanRuleName: rule.ruleName,
-        scanRuleValue: rule.ruleValue,
-        isDefault: rule.isDefault,
-      })
-    }
-  })
+  if (fs.existsSync(productsPath)) {
+    products =
+      JSON.parse(
+        fs.readFileSync(join(productPath, 'products.json'), 'utf-8'),
+      ) ?? []
+
+    products.forEach((product: Product) => {
+      const scanObjectExists = newBaseData.scanObjects.some(
+        (scanObject: ScanObject) =>
+          scanObject.scanObjectValue === product.productValue,
+      )
+      if (!scanObjectExists) {
+        newBaseData.scanObjects.push({
+          id: newBaseData.scanObjects.length + 1,
+          scanObjectName: product.productName,
+          scanObjectValue: product.productValue,
+        })
+      }
+      compatibleScanData(product)
+    })
+  }
+
+  if (fs.existsSync(rulesPath)) {
+    rules =
+      JSON.parse(fs.readFileSync(join(productPath, 'rules.json'), 'utf-8')) ??
+      []
+
+    rules.forEach((rule: Rule) => {
+      const scanRuleExists = newBaseData.scanRules.some(
+        (scanRule: ScanRule) => scanRule.scanRuleValue === rule.ruleValue,
+      )
+      if (!scanRuleExists) {
+        newBaseData.scanRules.push({
+          id: newBaseData.scanRules.length + 1,
+          scanRuleName: rule.ruleName,
+          scanRuleValue: rule.ruleValue,
+          isDefault: rule.isDefault,
+        })
+      }
+    })
+  }
   fs.writeFileSync(
     join(BASE_PATH, 'wk/wk-scan/data/base.json'),
     JSON.stringify(newBaseData),
