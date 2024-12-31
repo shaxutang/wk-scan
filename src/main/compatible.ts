@@ -1,6 +1,7 @@
 import { ScanObject, ScanRule } from '@/types'
 import dayjs from '@/utils/dayjs'
 import fs, { mkdirSync } from 'fs'
+import os from 'os'
 import { join } from 'path'
 import { BaseDBType, ScanDBType } from './database'
 import { scanObjects, scanRules } from './default'
@@ -24,16 +25,8 @@ export interface Rule {
 }
 
 const compatibleScanData = (product: Product) => {
-  const oldPath = join(
-    wkrc.get().workDir,
-    'wk/qr-scan/product',
-    product.productValue,
-  )
-  const newPath = join(
-    wkrc.get().workDir,
-    'wk/wk-scan/data',
-    product.productValue,
-  )
+  const oldPath = join(os.homedir(), 'wk/qr-scan/product', product.productValue)
+  const newPath = join(wkrc.get().workDir, 'data', product.productValue)
 
   if (!fs.existsSync(oldPath)) {
     return
@@ -104,8 +97,8 @@ const compatibleScanData = (product: Product) => {
 }
 
 const renameOldDir = () => {
-  const oldPath = join(wkrc.get().workDir, 'wk/qr-scan')
-  const newPath = join(wkrc.get().workDir, 'wk/qr-scan-deprecated')
+  const oldPath = join(os.homedir(), 'wk/qr-scan')
+  const newPath = join(wkrc.get().workDir, 'qr-scan-deprecated')
 
   try {
     if (fs.existsSync(oldPath)) {
@@ -117,8 +110,8 @@ const renameOldDir = () => {
 }
 
 export default function () {
-  const basePath = join(wkrc.get().workDir, 'wk/wk-scan/data')
-  const productPath = join(wkrc.get().workDir, 'wk/qr-scan/product')
+  const basePath = join(wkrc.get().workDir, 'data')
+  const productPath = join(os.homedir(), 'wk/qr-scan/product')
 
   if (!fs.existsSync(productPath)) {
     return
