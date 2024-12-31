@@ -34,66 +34,81 @@ const compatibleScanData = (product: Product) => {
     return
   }
 
-  if (!fs.existsSync(newPath)) {
-    mkdirSync(newPath, { recursive: true })
-  }
+  try {
+    if (!fs.existsSync(newPath)) {
+      mkdirSync(newPath, { recursive: true })
+    }
 
-  const oldDirs = fs.readdirSync(oldPath)
-  const newDirs = fs.readdirSync(newPath)
+    const oldDirs = fs.readdirSync(oldPath)
+    const newDirs = fs.readdirSync(newPath)
 
-  oldDirs
-    .filter((dir) => dayjs(dir).isValid())
-    .forEach((dir) => {
-      const readOldData =
-        (JSON.parse(
-          fs.readFileSync(join(oldPath, dir, 'data.json'), 'utf-8'),
-        ) as DataType[]) ?? []
-      if (!newDirs.includes(dir)) {
-        const oldData = readOldData.map((data, index) => ({
-          id: index + 1,
-          scanObjectName: product.productName,
-          scanObjectValue: product.productValue,
-          qrcode: data.qrcode,
-          date: data.date,
-        }))
-        const scanData: ScanDBType = {
-          scanList: oldData,
-          scanDate: dir,
+    oldDirs
+      .filter((dir) => dayjs(dir).isValid())
+      .forEach((dir) => {
+        try {
+          const oldDataPath = join(oldPath, dir, 'data.json')
+          if (!fs.existsSync(oldDataPath)) {
+            return
+          }
+
+          const readOldData =
+            (JSON.parse(fs.readFileSync(oldDataPath, 'utf-8')) as DataType[]) ||
+            []
+
+          if (!newDirs.includes(dir)) {
+            const oldData = readOldData.map((data, index) => ({
+              id: index + 1,
+              scanObjectName: product.productName,
+              scanObjectValue: product.productValue,
+              qrcode: data.qrcode,
+              date: data.date,
+            }))
+            const scanData: ScanDBType = {
+              scanList: oldData,
+              scanDate: dir,
+            }
+            fs.mkdirSync(join(newPath, dir), { recursive: true })
+            fs.writeFileSync(
+              join(newPath, dir, 'data.json'),
+              JSON.stringify(scanData, null, 2),
+            )
+          } else {
+            const newDataPath = join(newPath, dir, 'data.json')
+            const newData = fs.readFileSync(newDataPath, 'utf-8')
+            const newScanData: ScanDBType = JSON.parse(newData)
+
+            const oldData = readOldData.map((data) => ({
+              id: newScanData.scanList.length + 1,
+              scanObjectName: product.productName,
+              scanObjectValue: product.productValue,
+              qrcode: data.qrcode,
+              date: data.date,
+            }))
+
+            newScanData.scanList.push(...oldData)
+
+            fs.writeFileSync(newDataPath, JSON.stringify(newScanData, null, 2))
+          }
+        } catch (err) {
+          console.error(`Error processing directory ${dir}:`, err)
         }
-        fs.mkdirSync(join(newPath, dir), { recursive: true })
-        fs.writeFileSync(
-          join(newPath, dir, 'data.json'),
-          JSON.stringify(scanData),
-        )
-      } else {
-        const newData = fs.readFileSync(
-          join(newPath, dir, 'data.json'),
-          'utf-8',
-        )
-        const newScanData: ScanDBType = JSON.parse(newData)
-
-        const oldData = readOldData.map((data) => ({
-          id: newScanData.scanList.length + 1,
-          scanObjectName: product.productName,
-          scanObjectValue: product.productValue,
-          qrcode: data.qrcode,
-          date: data.date,
-        }))
-
-        newScanData.scanList.push(...oldData)
-
-        fs.writeFileSync(
-          join(newPath, dir, 'data.json'),
-          JSON.stringify(newScanData),
-        )
-      }
-    })
+      })
+  } catch (err) {
+    console.error(`Error processing product ${product.productValue}:`, err)
+  }
 }
 
 const renameOldDir = () => {
   const oldPath = join(BASE_PATH, 'wk/qr-scan')
-  const newPath = join(BASE_PATH, 'wk/qr-scan-depreated')
-  fs.renameSync(oldPath, newPath)
+  const newPath = join(BASE_PATH, 'wk/qr-scan-deprecated')
+
+  try {
+    if (fs.existsSync(oldPath)) {
+      fs.renameSync(oldPath, newPath)
+    }
+  } catch (err) {
+    console.error('Error renaming old directory:', err)
+  }
 }
 
 export default function () {
@@ -104,75 +119,72 @@ export default function () {
     return
   }
 
-  if (!fs.existsSync(basePath)) {
-    mkdirSync(basePath, { recursive: true })
-  }
-
-  const baseFilePath = join(basePath, 'base.json')
-
-  let newBaseData: BaseDBType
-  let products: Product[]
-  let rules: Rule[]
-
-  if (!fs.existsSync(baseFilePath)) {
-    newBaseData = {
-      scanObjects,
-      scanRules,
+  try {
+    if (!fs.existsSync(basePath)) {
+      mkdirSync(basePath, { recursive: true })
     }
-    fs.writeFileSync(baseFilePath, JSON.stringify(newBaseData))
-  } else {
-    newBaseData = JSON.parse(
-      fs.readFileSync(baseFilePath, 'utf-8'),
-    ) as BaseDBType
-  }
 
-  const productsPath = join(productPath, 'products.json')
-  const rulesPath = join(productPath, 'rules.json')
+    const baseFilePath = join(basePath, 'base.json')
 
-  if (fs.existsSync(productsPath)) {
-    products =
-      JSON.parse(
-        fs.readFileSync(join(productPath, 'products.json'), 'utf-8'),
-      ) ?? []
+    let newBaseData: BaseDBType
+    let products: Product[] = []
+    let rules: Rule[] = []
 
-    products.forEach((product: Product) => {
-      const scanObjectExists = newBaseData.scanObjects.some(
-        (scanObject: ScanObject) =>
-          scanObject.scanObjectValue === product.productValue,
-      )
-      if (!scanObjectExists) {
-        newBaseData.scanObjects.push({
-          id: newBaseData.scanObjects.length + 1,
-          scanObjectName: product.productName,
-          scanObjectValue: product.productValue,
-        })
+    if (!fs.existsSync(baseFilePath)) {
+      newBaseData = {
+        scanObjects,
+        scanRules,
       }
-      compatibleScanData(product)
-    })
-  }
+    } else {
+      const baseFileContent = fs.readFileSync(baseFilePath, 'utf-8')
+      newBaseData = JSON.parse(baseFileContent) as BaseDBType
+    }
 
-  if (fs.existsSync(rulesPath)) {
-    rules =
-      JSON.parse(fs.readFileSync(join(productPath, 'rules.json'), 'utf-8')) ??
-      []
+    const productsPath = join(productPath, 'products.json')
+    const rulesPath = join(productPath, 'rules.json')
 
-    rules.forEach((rule: Rule) => {
-      const scanRuleExists = newBaseData.scanRules.some(
-        (scanRule: ScanRule) => scanRule.scanRuleValue === rule.ruleValue,
-      )
-      if (!scanRuleExists) {
-        newBaseData.scanRules.push({
-          id: newBaseData.scanRules.length + 1,
-          scanRuleName: rule.ruleName,
-          scanRuleValue: rule.ruleValue,
-          isDefault: rule.isDefault,
-        })
-      }
-    })
+    if (fs.existsSync(productsPath)) {
+      const productsContent = fs.readFileSync(productsPath, 'utf-8')
+      products = JSON.parse(productsContent) || []
+
+      products.forEach((product: Product) => {
+        const scanObjectExists = newBaseData.scanObjects.some(
+          (scanObject: ScanObject) =>
+            scanObject.scanObjectValue === product.productValue,
+        )
+        if (!scanObjectExists) {
+          newBaseData.scanObjects.push({
+            id: newBaseData.scanObjects.length + 1,
+            scanObjectName: product.productName,
+            scanObjectValue: product.productValue,
+          })
+        }
+        compatibleScanData(product)
+      })
+    }
+
+    if (fs.existsSync(rulesPath)) {
+      const rulesContent = fs.readFileSync(rulesPath, 'utf-8')
+      rules = JSON.parse(rulesContent) || []
+
+      rules.forEach((rule: Rule) => {
+        const scanRuleExists = newBaseData.scanRules.some(
+          (scanRule: ScanRule) => scanRule.scanRuleValue === rule.ruleValue,
+        )
+        if (!scanRuleExists) {
+          newBaseData.scanRules.push({
+            id: newBaseData.scanRules.length + 1,
+            scanRuleName: rule.ruleName,
+            scanRuleValue: rule.ruleValue,
+            isDefault: rule.isDefault,
+          })
+        }
+      })
+    }
+
+    fs.writeFileSync(baseFilePath, JSON.stringify(newBaseData, null, 2))
+    renameOldDir()
+  } catch (err) {
+    console.error('Error in data migration:', err)
   }
-  fs.writeFileSync(
-    join(BASE_PATH, 'wk/wk-scan/data/base.json'),
-    JSON.stringify(newBaseData),
-  )
-  renameOldDir()
 }

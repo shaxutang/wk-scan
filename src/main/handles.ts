@@ -304,6 +304,16 @@ export function expose(app: Electron.App) {
     database.loadScanDB()
     return R.success()
   })
+
+  ipcMain.handle(HandleType.SELECT_FOLDER, async (event) => {
+    const paths = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+    })
+    if (paths.canceled) {
+      return { success: true, message: '操作取消' }
+    }
+    return R.success().setData(paths.filePaths[0])
+  })
 }
 
 async function exportScanData(scanObject: ScanObject, scanDate: string) {

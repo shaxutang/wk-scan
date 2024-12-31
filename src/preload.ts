@@ -98,6 +98,11 @@ async function saveWkrc(wkrc: WkrcType): Promise<ResultType> {
   return ipcRenderer.invoke(HandleType.SAVE_WKRC, wkrc)
 }
 
+// 选择文件夹
+async function selectFolder(): Promise<ResultType<string>> {
+  return ipcRenderer.invoke(HandleType.SELECT_FOLDER)
+}
+
 const api = {
   saveScanObject,
   getScanObjectList,
@@ -114,6 +119,7 @@ const api = {
   exportScanWorkdir,
   getWkrc,
   saveWkrc,
+  selectFolder,
 }
 
 export type Api = typeof api

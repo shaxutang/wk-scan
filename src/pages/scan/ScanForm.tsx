@@ -17,9 +17,8 @@ import { useEffect, useRef } from 'react'
 type FormInstance = Pick<ScanDataType, 'qrcode'> & { autoFocus?: boolean }
 
 const ScanForm: React.FC<{
-  disabled?: boolean
   onSubmit?: (data: ScanDataType) => void
-}> = ({ disabled, onSubmit }) => {
+}> = ({ onSubmit }) => {
   const [api, contextHolder] = notification.useNotification()
   const [form] = Form.useForm<FormInstance>()
   const inputRef = useRef<InputRef>(null!)
@@ -44,7 +43,7 @@ const ScanForm: React.FC<{
         qrcode: (e.currentTarget as HTMLInputElement).value,
         ...scanStore.scanStoreData.scanObject,
       })
-      form.setFieldValue('qrcode', '')
+      form.resetFields(['qrcode'])
     }
   }
 
@@ -111,7 +110,7 @@ const ScanForm: React.FC<{
           qrcode: '',
           autoFocus: true,
         }}
-        disabled={disabled}
+        disabled={!dayjs().isSame(dayjs(scanStore.scanStoreData.scanDate), 'D')}
         className="[&_.ant-form-item]:!mb-0"
       >
         <Row gutter={[16, 16]} style={{ marginInline: 0 }}>

@@ -31,4 +31,10 @@ export const scanRules: ScanRule[] = [
     scanRuleValue: '^\\d{7}W\\d{10}$',
     isDefault: true,
   },
+  {
+    id: 2,
+    scanRuleName: '通用条码（不做任何校验）',
+    scanRuleValue: '.*',
+    isDefault: false,
+  },
 ]

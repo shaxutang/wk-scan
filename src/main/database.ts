@@ -41,7 +41,7 @@ export class Database {
     scanConfig = scanConfig ?? this.scanConfig
 
     if (!scanConfig) {
-      throw new Error('scanConfig is required')
+      return
     }
 
     const scanPath = join(

@@ -16,6 +16,7 @@ export enum HandleType {
   EXPORT_SCAN_WORKDIR = 'exportScanWorkdir',
   GET_WKRC = 'getWkrc',
   SAVE_WKRC = 'saveWkrc',
+  SELECT_FOLDER = 'selectFolder',
 }
 
 export type SaveScanDataParams = {
