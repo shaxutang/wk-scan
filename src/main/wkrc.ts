@@ -1,6 +1,7 @@
 import fs from 'fs'
 import os from 'os'
 import { join } from 'path'
+import { wkrc as defaultWkrc } from './default'
 
 export type WkrcType = {
   workDir?: string
@@ -15,10 +16,7 @@ class Wkrc {
   constructor() {
     this.data = (!fs.existsSync(filePath)
       ? (() => {
-          const initial = {
-            workDir: join(os.homedir(), 'wk/wk-scan'),
-            language: 'zh',
-          }
+          const initial = defaultWkrc
           fs.writeFileSync(filePath, JSON.stringify(initial))
           return initial
         })()

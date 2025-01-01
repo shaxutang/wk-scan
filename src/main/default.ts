@@ -1,4 +1,12 @@
 import { ScanObject, ScanRule } from '@/types'
+import os from 'os'
+import { join } from 'path'
+import { WkrcType } from './wkrc'
+
+export const wkrc: WkrcType = {
+  workDir: join(os.homedir(), 'wk/wk-scan'),
+  language: 'zh',
+}
 
 export const scanObjects: ScanObject[] = [
   { id: 1, scanObjectName: '气压阀', scanObjectValue: 'qì_yā_fá' },
