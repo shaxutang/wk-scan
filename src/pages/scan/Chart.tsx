@@ -1,7 +1,7 @@
 import { useDark } from '@/hooks/useDark'
 import { Snapshot } from '@/types'
 import { Line, LineConfig } from '@ant-design/plots'
-import { Card, Empty, Space, Typography } from 'antd'
+import { Card, Empty, Typography } from 'antd'
 import { BaseType } from 'antd/es/typography/Base'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -43,23 +43,28 @@ const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
     let analysis = ''
     let status = 'stable'
 
-    // 分析最近一小时的变化
     if (snapshot.growth > 0) {
-      analysis = t('Trend Up', {
-        value: (snapshot.growth * 100).toFixed(2),
-        comparison: t(lastCapacity > avgCapacity ? 'Higher' : 'Lower'),
-        diff: Math.abs(lastCapacity - avgCapacity).toFixed(0),
-      })
+      analysis =
+        t('Trend Up', {
+          value: (snapshot.growth * 100).toFixed(2),
+          comparison: t(lastCapacity > avgCapacity ? 'Higher' : 'Lower'),
+          diff: Math.abs(lastCapacity - avgCapacity).toFixed(0),
+        }) +
+        '，' +
+        t('Keep Going')
       status = 'up'
     } else if (snapshot.growth < 0) {
-      analysis = t('Trend Down', {
-        value: (Math.abs(snapshot.growth) * 100).toFixed(2),
-        comparison: t(lastCapacity > avgCapacity ? 'Higher' : 'Lower'),
-        diff: Math.abs(lastCapacity - avgCapacity).toFixed(0),
-      })
+      analysis =
+        t('Trend Down', {
+          value: (Math.abs(snapshot.growth) * 100).toFixed(2),
+          comparison: t(lastCapacity > avgCapacity ? 'Higher' : 'Lower'),
+          diff: Math.abs(lastCapacity - avgCapacity).toFixed(0),
+        }) +
+        ' ' +
+        t('Bounce Back')
       status = 'down'
     } else {
-      analysis = t('Trend Stable')
+      analysis = t('Trend Stable') + ' ' + t('Stay Stable')
       status = 'stable'
     }
 
@@ -123,12 +128,7 @@ const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
   return (
     <Card
       size="small"
-      title={
-        <Space>
-          <Text>{t('Hourly Capacity Distribution')}</Text>
-          <Text type={trendStatusType}>{trendAnalysis}</Text>
-        </Space>
-      }
+      title={t('Hourly Capacity Distribution')}
       styles={{
         header: {
           padding: '16px 24px',
@@ -141,10 +141,15 @@ const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
       className={className}
     >
       {snapshot.charData.length ? (
-        <Line {...config} viewStyle={{ height: 600 }} />
+        <Line {...config} viewStyle={{ height: 800 }} />
       ) : (
-        <Empty description={t('No Data')} />
+        <Empty description={t('No Data')} className="mt-32" />
       )}
+      <div className="mt-8 text-center">
+        <Text type={trendStatusType} className="text-lg">
+          {trendAnalysis}
+        </Text>
+      </div>
     </Card>
   )
 }

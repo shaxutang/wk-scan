@@ -32,7 +32,10 @@ class Wkrc {
   }
 
   set(w: WkrcType) {
-    this.data = w
+    this.data = {
+      ...this.data,
+      ...w,
+    }
     fs.writeFileSync(filePath, JSON.stringify(this.data))
   }
 }
