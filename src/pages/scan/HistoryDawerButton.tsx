@@ -5,6 +5,7 @@ import { ExportOutlined, HistoryOutlined } from '@ant-design/icons/lib'
 import {
   Button,
   Checkbox,
+  Collapse,
   Drawer,
   Empty,
   Flex,
@@ -111,6 +112,80 @@ const HistoryDawerButton: React.FC = () => {
     setSelectAll(checked)
   }
 
+  // Group data by year
+  const groupedData = exportList.reduce(
+    (acc, item) => {
+      const year = item.date.year()
+      if (!acc[year]) {
+        acc[year] = []
+      }
+      acc[year].push(item)
+      return acc
+    },
+    {} as Record<number, typeof exportList>,
+  )
+
+  // Sort years in descending order
+  const years = Object.keys(groupedData)
+    .map(Number)
+    .sort((a, b) => b - a)
+
+  const collapseItems = years.map((year) => ({
+    key: year,
+    label: year,
+    children: (
+      <List className="space-y-4">
+        {groupedData[year].map((item) => (
+          <List.Item
+            key={item.date.valueOf()}
+            className="flex items-center text-xl"
+          >
+            <label className="flex cursor-pointer items-center text-xl">
+              <Checkbox
+                checked={selectedDays.some((day) => day.isSame(item.date, 'D'))}
+                onClick={() =>
+                  setSelectedDays((prev) => {
+                    const exists = prev.some((day) =>
+                      day.isSame(item.date, 'D'),
+                    )
+                    if (exists) {
+                      return prev.filter((day) => !day.isSame(item.date, 'D'))
+                    }
+                    return [...prev, item.date]
+                  })
+                }
+              />
+              <span className="ml-4">
+                <span>{item.name}</span>
+                {dayjs().isSame(item.date, 'D') && (
+                  <span className="ml-1 text-sm text-black/40 dark:text-white/40">
+                    ({t('Today')})
+                  </span>
+                )}
+              </span>
+            </label>
+            <Space className="ml-auto">
+              <Button
+                type="primary"
+                size="small"
+                disabled={item.date.isSame(
+                  dayjs(scanStore.scanStoreData.scanDate),
+                  'D',
+                )}
+                onClick={() => onView(item.date)}
+              >
+                {t('View')}
+              </Button>
+              <Button size="small" onClick={() => onExport(item.date)}>
+                {t('Export')}
+              </Button>
+            </Space>
+          </List.Item>
+        ))}
+      </List>
+    ),
+  }))
+
   return (
     <>
       <Button icon={<HistoryOutlined />} onClick={onClick}>
@@ -146,63 +221,16 @@ const HistoryDawerButton: React.FC = () => {
             </Button>
           </Space>
         </Flex>
-        <List className="space-y-4">
-          {exportList.length ? (
-            exportList.map((item) => (
-              <List.Item
-                key={item.date.valueOf()}
-                className="flex items-center text-xl"
-              >
-                <label className="flex cursor-pointer items-center text-xl">
-                  <Checkbox
-                    checked={selectedDays.some((day) =>
-                      day.isSame(item.date, 'D'),
-                    )}
-                    onClick={() =>
-                      setSelectedDays((prev) => {
-                        const exists = prev.some((day) =>
-                          day.isSame(item.date, 'D'),
-                        )
-                        if (exists) {
-                          return prev.filter(
-                            (day) => !day.isSame(item.date, 'D'),
-                          )
-                        }
-                        return [...prev, item.date]
-                      })
-                    }
-                  />
-                  <span className="ml-4">
-                    <span>{item.name}</span>
-                    {dayjs().isSame(item.date, 'D') && (
-                      <span className="ml-1 text-sm text-black/40 dark:text-white/40">
-                        ({t('Today')})
-                      </span>
-                    )}
-                  </span>
-                </label>
-                <Space className="ml-auto">
-                  <Button
-                    type="primary"
-                    size="small"
-                    disabled={item.date.isSame(
-                      dayjs(scanStore.scanStoreData.scanDate),
-                      'D',
-                    )}
-                    onClick={() => onView(item.date)}
-                  >
-                    {t('View')}
-                  </Button>
-                  <Button size="small" onClick={() => onExport(item.date)}>
-                    {t('Export')}
-                  </Button>
-                </Space>
-              </List.Item>
-            ))
-          ) : (
-            <Empty />
-          )}
-        </List>
+        {exportList.length ? (
+          <Collapse
+            defaultActiveKey={[years[0]]}
+            ghost
+            items={collapseItems}
+            className="[& .ant-collapse-header]:!px-0"
+          />
+        ) : (
+          <Empty />
+        )}
       </Drawer>
       {holder}
     </>
