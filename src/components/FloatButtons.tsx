@@ -24,7 +24,7 @@ const FloatButtons: React.FC = () => {
   const onExportDatasource = async () => {
     const { code, message } = await window.electron.exportScanWorkdir()
     if (code === RCode.SUCCESS) {
-      messageApi.success('数据源导出成功')
+      messageApi.success(t('Export Success'))
     } else {
       messageApi.error(message)
     }

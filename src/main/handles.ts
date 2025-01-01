@@ -284,7 +284,7 @@ export function expose(app: Electron.App) {
     if (paths.canceled) {
       return { success: true, message: '操作取消' }
     }
-    const selectPath = join(paths.filePaths[0], 'wk/wk-scan')
+    const selectPath = join(paths.filePaths[0], 'wk-scan')
     const sourcePath = join(wkrc.get().workDir)
     try {
       await copy(sourcePath, selectPath, { recursive: true })
