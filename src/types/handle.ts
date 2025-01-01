@@ -53,4 +53,5 @@ export type ScanHistory = {
 export type ExportScanDataParams = {
   scanObject: ScanObject
   scanDates: string[]
+  language: string
 }

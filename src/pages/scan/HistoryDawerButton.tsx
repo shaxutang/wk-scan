@@ -30,7 +30,7 @@ const HistoryDawerButton: React.FC = () => {
   const [isBatchPending, startBatchTransition] = useTransition()
   const [isLoadDataPending, startLoadDataTransition] = useTransition()
   const scanStore = useScanStore()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const onClick = async () => {
     setOpen(true)
@@ -63,9 +63,10 @@ const HistoryDawerButton: React.FC = () => {
     const { code, message } = await window.electron.exportScanData({
       scanObject: scanStore.scanStoreData.scanObject,
       scanDates: [date.format('YYYY-MM-DD')],
+      language: i18n.language,
     })
     if (code === RCode.SUCCESS) {
-      messageApi.success('导出成功')
+      messageApi.success(t('Export Success'))
       window.electron.openExportExplorer(scanStore.scanStoreData.scanObject)
     } else {
       messageApi.error(message)
@@ -78,10 +79,11 @@ const HistoryDawerButton: React.FC = () => {
         .exportScanData({
           scanObject: scanStore.scanStoreData.scanObject,
           scanDates: selectedDays.map((day) => day.format('YYYY-MM-DD')),
+          language: i18n.language,
         })
         .then((res) => {
           if (res.code === RCode.SUCCESS) {
-            messageApi.success('导出成功')
+            messageApi.success(t('Export Success'))
             window.electron.openExportExplorer(
               scanStore.scanStoreData.scanObject,
             )

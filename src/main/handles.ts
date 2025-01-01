@@ -251,10 +251,13 @@ export function expose(app: Electron.App) {
 
   ipcMain.handle(
     HandleType.EXPORT_SCAN_DATA,
-    async (event, { scanObject, scanDates }: ExportScanDataParams) => {
+    async (
+      event,
+      { scanObject, scanDates, language }: ExportScanDataParams,
+    ) => {
       scanDates.forEach((scanDate) => {
         try {
-          exportScanData(scanObject, scanDate)
+          exportScanData(scanObject, scanDate, language)
         } catch (error) {
           return R.error().setMessage(
             `${scanObject.scanObjectName}[${scanDate}]导出失败`,
@@ -316,7 +319,34 @@ export function expose(app: Electron.App) {
   })
 }
 
-async function exportScanData(scanObject: ScanObject, scanDate: string) {
+const headers: Record<string, Record<string, string>> = {
+  scanObjectName: {
+    zh: '扫码对象名称',
+    en: 'Scan Object Name',
+    vi: 'Tên đối tượng quét',
+  },
+  qrcode: {
+    zh: '扫码对象条码',
+    en: 'Scan Object QR Code',
+    vi: 'Mã QR đối tượng quét',
+  },
+  state: {
+    zh: '测试状态',
+    en: 'Test Status',
+    vi: 'Trạng thái kiểm tra',
+  },
+  date: {
+    zh: '扫码时间',
+    en: 'Scan Time',
+    vi: 'Thời gian quét',
+  },
+}
+
+async function exportScanData(
+  scanObject: ScanObject,
+  scanDate: string,
+  language: string = 'zh',
+) {
   const workbook = new Workbook()
   const worksheet = workbook.addWorksheet('导出数据')
   const scanList = database
@@ -328,16 +358,20 @@ async function exportScanData(scanObject: ScanObject, scanDate: string) {
     .value()
 
   worksheet.columns = [
-    { header: '扫码对象名称', key: 'scanObjectName', width: 20 },
-    { header: '扫码对象条码', key: 'qrcode', width: 30 },
-    { header: '测试状态', key: 'state', width: 20 },
-    { header: '扫码时间', key: 'date', width: 20 },
+    {
+      header: headers.scanObjectName[language],
+      key: 'scanObjectName',
+      width: 20,
+    },
+    { header: headers.qrcode[language], key: 'qrcode', width: 30 },
+    { header: headers.state[language], key: 'state', width: 20 },
+    { header: headers.date[language], key: 'date', width: 20 },
   ]
 
   scanList
     .map((scan) => ({
       ...scan,
-      state: '测试通过',
+      state: 'Pass',
       date: dayjs(scan.date).format('YYYY/MM/DD HH:mm:ss'),
     }))
     .forEach((item) => {
