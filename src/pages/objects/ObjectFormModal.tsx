@@ -48,7 +48,7 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
     <Modal {...rest} onOk={handleOk} onCancel={handleCancel}>
       <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
         <Form.Item
-          name={t('Scan Object Name')}
+          name="scanObjectName"
           label={t('Scan Object Name')}
           rules={[
             { required: true, message: t('Please enter scan object name') },
