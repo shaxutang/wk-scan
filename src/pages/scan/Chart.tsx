@@ -4,6 +4,7 @@ import { Line, LineConfig } from '@ant-design/plots'
 import { Card, Empty, Space, Typography } from 'antd'
 import { BaseType } from 'antd/es/typography/Base'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import ScanListButton from './ScanListButton'
 
 export type ChartData = {
@@ -19,21 +20,19 @@ export interface ChartProps {
 const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
   const { isDark } = useDark()
   const { Text } = Typography
+  const { t } = useTranslation()
 
-  const { trendAnalysis, trendStatus, encouragement } = React.useMemo(() => {
+  const { trendAnalysis, trendStatus } = React.useMemo(() => {
     const chartData = snapshot.charData
     if (!chartData || chartData.length < 2) {
       return {
-        trendAnalysis: '数据量不足，无法分析趋势',
+        trendAnalysis: t('Insufficient Data'),
         trendStatus: 'stable',
-        encouragement: '开始记录数据，让我们一起见证成长!',
       }
     }
 
     const capacities = chartData.map((d) => d.capacity)
     const lastCapacity = capacities[capacities.length - 1]
-
-    // 计算平均产能和标准差
     const avgCapacity =
       capacities.reduce((a, b) => a + b, 0) / capacities.length
     const stdDev = Math.sqrt(
@@ -43,41 +42,32 @@ const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
 
     let analysis = ''
     let status = 'stable'
-    let encourageMsg = ''
 
     // 分析最近一小时的变化
     if (snapshot.growth > 0) {
-      analysis = `最近一小时产能上升 ${(snapshot.growth * 100).toFixed(2)}%，相比平均水平${
-        lastCapacity > avgCapacity ? '高' : '低'
-      } ${Math.abs(lastCapacity - avgCapacity).toFixed(0)} pcs`
+      analysis = t('Trend Up', {
+        value: (snapshot.growth * 100).toFixed(2),
+        comparison: t(lastCapacity > avgCapacity ? 'Higher' : 'Lower'),
+        diff: Math.abs(lastCapacity - avgCapacity).toFixed(0),
+      })
       status = 'up'
-      encourageMsg = '产能持续上升，继续保持这个势头！'
     } else if (snapshot.growth < 0) {
-      analysis = `最近一小时产能下降 ${(Math.abs(snapshot.growth) * 100).toFixed(2)}%，相比平均水平${
-        lastCapacity > avgCapacity ? '高' : '低'
-      } ${Math.abs(lastCapacity - avgCapacity).toFixed(0)} pcs`
+      analysis = t('Trend Down', {
+        value: (Math.abs(snapshot.growth) * 100).toFixed(2),
+        comparison: t(lastCapacity > avgCapacity ? 'Higher' : 'Lower'),
+        diff: Math.abs(lastCapacity - avgCapacity).toFixed(0),
+      })
       status = 'down'
-      encourageMsg = '暂时的下降不要紧，调整状态，一定能重回正轨！'
     } else {
-      analysis = '最近一小时产能保持稳定'
+      analysis = t('Trend Stable')
       status = 'stable'
-      encourageMsg = '产能保持稳定，这就是最好的表现！'
-    }
-
-    // 添加波动情况分析
-    if (stdDev / avgCapacity > 0.2) {
-      analysis += '，产能波动较大'
-    } else if (stdDev / avgCapacity > 0.1) {
-      analysis += '，产能波动适中'
-    } else {
-      analysis += '，产能波动较小'
     }
 
     return {
-      trendAnalysis: analysis + '，' + encourageMsg,
+      trendAnalysis: analysis,
       trendStatus: status,
     }
-  }, [snapshot.charData, snapshot.growth])
+  }, [snapshot.charData, snapshot.growth, t])
 
   const config: LineConfig = {
     theme: isDark ? 'classicDark' : 'classic',
@@ -101,7 +91,8 @@ const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
 
             const nameDiv = document.createElement('div')
             nameDiv.className = 'font-medium'
-            nameDiv.textContent = item.name === 'capacity' ? '产能' : '时间'
+            nameDiv.textContent =
+              item.name === 'capacity' ? t('Capacity') : t('Time')
 
             const valueDiv = document.createElement('div')
             valueDiv.className = 'font-medium'
@@ -128,12 +119,13 @@ const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
       : trendStatus === 'down'
         ? 'danger'
         : 'secondary'
+
   return (
     <Card
       size="small"
       title={
         <Space>
-          <Text>小时产能分布图</Text>
+          <Text>{t('Hourly Capacity Distribution')}</Text>
           <Text type={trendStatusType}>{trendAnalysis}</Text>
         </Space>
       }
@@ -151,7 +143,7 @@ const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
       {snapshot.charData.length ? (
         <Line {...config} viewStyle={{ height: 600 }} />
       ) : (
-        <Empty description="暂无数据" />
+        <Empty description={t('No Data')} />
       )}
     </Card>
   )

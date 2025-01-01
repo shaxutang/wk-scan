@@ -1,6 +1,7 @@
 import { ScanRule } from '@/types'
 import { Form, Input, Modal, ModalProps, Switch } from 'antd'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export interface ScanRuleFormModalProps extends Omit<ModalProps, 'onOk'> {
   initValue?: Omit<ScanRule, 'id'> & { id?: number }
@@ -14,6 +15,7 @@ const ScanRuleFormModal: React.FC<ScanRuleFormModalProps> = ({
   ...rest
 }: ScanRuleFormModalProps) => {
   const [form] = Form.useForm<ScanRule>()
+  const { t } = useTranslation()
 
   useEffect(() => {
     initValue && form.setFieldsValue(initValue)
@@ -40,22 +42,28 @@ const ScanRuleFormModal: React.FC<ScanRuleFormModalProps> = ({
 
   return (
     <Modal {...rest} onOk={handleOk} onCancel={handleCancel}>
-      <Form form={form} labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
+      <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
         <Form.Item
           name="scanRuleName"
-          label="条码规则名称"
-          rules={[{ required: true, message: '请输入条码规则名称' }]}
+          label={t('Scan Rule Name')}
+          rules={[
+            { required: true, message: t('Please enter scan rule name') },
+          ]}
         >
-          <Input placeholder="请输入条码规则名称" />
+          <Input placeholder={t('Please enter scan rule name')} />
         </Form.Item>
         <Form.Item
           name="scanRuleValue"
-          label="条码规则"
-          rules={[{ required: true, message: '请输入条码规则' }]}
+          label={t('Scan Rule')}
+          rules={[{ required: true, message: t('Please enter scan rule') }]}
         >
-          <Input placeholder="请输入条码规则" />
+          <Input placeholder={t('Please enter scan rule')} />
         </Form.Item>
-        <Form.Item name="isDefault" label="默认" valuePropName="checked">
+        <Form.Item
+          name="isDefault"
+          label={t('Default')}
+          valuePropName="checked"
+        >
           <Switch />
         </Form.Item>
       </Form>

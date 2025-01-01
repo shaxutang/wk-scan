@@ -1,6 +1,7 @@
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
 import { Card, Col, Row, Statistic } from 'antd'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 export interface StatisticsProps {
   lastHourCapacity: number
@@ -15,6 +16,7 @@ const Statistics: React.FC<StatisticsProps> = ({
   speed,
   growth,
 }) => {
+  const { t } = useTranslation()
   const isGrowth = growth >= 0
   const icon = isGrowth ? <ArrowUpOutlined /> : <ArrowDownOutlined />
   const valueStyle = {
@@ -28,7 +30,7 @@ const Statistics: React.FC<StatisticsProps> = ({
       <Col span={12} xl={{ span: 6 }}>
         <Card>
           <Statistic
-            title="最新时间段产能"
+            title={t('Latest Period Capacity')}
             value={lastHourCapacity}
             precision={0}
             valueStyle={{ fontWeight: 400, fontSize: 36 }}
@@ -39,7 +41,7 @@ const Statistics: React.FC<StatisticsProps> = ({
       <Col span={12} xl={{ span: 6 }}>
         <Card>
           <Statistic
-            title="总产能"
+            title={t('Total Capacity')}
             value={totalCapacity}
             valueStyle={{ fontWeight: 400, fontSize: 36 }}
             precision={0}
@@ -50,18 +52,18 @@ const Statistics: React.FC<StatisticsProps> = ({
       <Col span={12} xl={{ span: 6 }}>
         <Card>
           <Statistic
-            title="生产速度"
+            title={t('Production Speed')}
             value={speed.toFixed(2)}
             precision={2}
             valueStyle={{ color: '#1677ff', fontWeight: 400, fontSize: 36 }}
-            suffix="pcs /小时"
+            suffix={t('pcs/hour')}
           />
         </Card>
       </Col>
       <Col span={12} xl={{ span: 6 }}>
         <Card>
           <Statistic
-            title="小时产能同比增长"
+            title={t('Hourly Capacity Growth')}
             value={(growth * 100).toFixed(2)}
             precision={2}
             prefix={icon}

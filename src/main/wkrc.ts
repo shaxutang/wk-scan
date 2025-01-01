@@ -4,6 +4,7 @@ import { join } from 'path'
 
 export type WkrcType = {
   workDir?: string
+  language?: string
 }
 
 const fileName = '.wkrc.json'
@@ -14,7 +15,10 @@ class Wkrc {
   constructor() {
     this.data = (!fs.existsSync(filePath)
       ? (() => {
-          const initial = { workDir: join(os.homedir(), 'wk/wk-scan') }
+          const initial = {
+            workDir: join(os.homedir(), 'wk/wk-scan'),
+            language: 'zh',
+          }
           fs.writeFileSync(filePath, JSON.stringify(initial))
           return initial
         })()

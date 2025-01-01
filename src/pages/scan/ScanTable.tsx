@@ -4,35 +4,11 @@ import dayjs from '@/utils/dayjs'
 import { RCode } from '@/utils/R'
 import { Table, TableProps, Tag } from 'antd'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import SearchForm from './SearchForm'
 
-const columns: TableProps<ScanDataType>['columns'] = [
-  {
-    title: '扫码对象名称',
-    dataIndex: 'scanObjectName',
-    key: 'scanObjectName',
-    render: (text) => text,
-  },
-  {
-    title: '扫码对象编号',
-    dataIndex: 'qrcode',
-    key: 'qrcode',
-    render: (text) => text,
-  },
-  {
-    title: '测试状态',
-    key: 'state',
-    dataIndex: 'state',
-    render: () => <Tag color="success">测试通过</Tag>,
-  },
-  {
-    title: '测试时间',
-    key: 'date',
-    render: ({ date }) => dayjs(date).format('YYYY/MM/DD HH:mm:ss'),
-  },
-]
-
 const ScanTable: React.FC<{}> = () => {
+  const { t } = useTranslation()
   const [input, setInput] = useState('')
   const [page, setPage] = useState<{
     current: number
@@ -49,6 +25,32 @@ const ScanTable: React.FC<{}> = () => {
     records: [],
   })
   const scanStore = useScanStore()
+
+  const columns: TableProps<ScanDataType>['columns'] = [
+    {
+      title: t('Scan Object Name'),
+      dataIndex: 'scanObjectName',
+      key: 'scanObjectName',
+      render: (text) => text,
+    },
+    {
+      title: t('Scan Object Number'),
+      dataIndex: 'qrcode',
+      key: 'qrcode',
+      render: (text) => text,
+    },
+    {
+      title: t('Test Status'),
+      key: 'state',
+      dataIndex: 'state',
+      render: () => <Tag color="success">{t('Test Passed')}</Tag>,
+    },
+    {
+      title: t('Test Time'),
+      key: 'date',
+      render: ({ date }) => dayjs(date).format('YYYY/MM/DD HH:mm:ss'),
+    },
+  ]
 
   const scanStoreData = scanStore.scanStoreData
 
@@ -98,7 +100,7 @@ const ScanTable: React.FC<{}> = () => {
           total: dataSource.total,
           pageSizeOptions: [10, 20, 30, 40, 50],
           pageSize: page.size,
-          showTotal: (total) => `共 ${total} 条数据`,
+          showTotal: (total) => t('Total Items', { total }),
           onChange: (page, size) => {
             setPage({
               current: page,

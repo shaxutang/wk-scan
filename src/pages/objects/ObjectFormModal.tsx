@@ -2,6 +2,7 @@ import { ScanObject } from '@/types'
 import { Form, Input, Modal, ModalProps } from 'antd'
 import pinyin from 'pinyin'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export interface ScanObjectFormModalProps extends Omit<ModalProps, 'onOk'> {
   initValue?: ScanObject
@@ -15,6 +16,7 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
   ...rest
 }: ScanObjectFormModalProps) => {
   const [form] = Form.useForm<ScanObject>()
+  const { t } = useTranslation()
 
   useEffect(() => {
     initValue && form.setFieldsValue(initValue)
@@ -44,13 +46,15 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
 
   return (
     <Modal {...rest} onOk={handleOk} onCancel={handleCancel}>
-      <Form form={form} labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
+      <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
         <Form.Item
-          name="scanObjectName"
-          label="扫码对象名称"
-          rules={[{ required: true, message: '请输入扫码对象名称' }]}
+          name={t('Scan Object Name')}
+          label={t('Scan Object Name')}
+          rules={[
+            { required: true, message: t('Please enter scan object name') },
+          ]}
         >
-          <Input placeholder="请输入扫码对象名称" />
+          <Input placeholder={t('Please enter scan object name')} />
         </Form.Item>
       </Form>
     </Modal>

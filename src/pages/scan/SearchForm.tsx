@@ -1,5 +1,6 @@
 import { Button, Input, Space } from 'antd'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const QuickAction: React.FC<{
   value: string
@@ -7,6 +8,7 @@ const QuickAction: React.FC<{
   onReset: () => void
 }> = ({ value, onSubmit, onReset }) => {
   const [innerValue, setInnerValue] = useState(value ?? '')
+  const { t } = useTranslation()
 
   useEffect(() => {
     setInnerValue(value)
@@ -25,14 +27,14 @@ const QuickAction: React.FC<{
       <Input
         value={innerValue}
         onChange={(e) => setInnerValue(e.target.value)}
-        placeholder="请输入条码"
+        placeholder={t('Please enter barcode')}
         className="w-72"
         onKeyDown={handleKeyDown}
       />
       <Button type="primary" onClick={() => onSubmit(innerValue)}>
-        快速搜索
+        {t('Quick Search')}
       </Button>
-      <Button onClick={onReset}>重置</Button>
+      <Button onClick={onReset}>{t('Reset')}</Button>
     </Space>
   )
 }

@@ -2,12 +2,15 @@ import { useDark } from '@/hooks/useDark'
 import { useScanStore } from '@/stores/useScanStore'
 import dayjs from '@/utils/dayjs'
 import { LeftOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 const Header: React.FC = () => {
   const scanStore = useScanStore()
   const scanStoreData = scanStore.scanStoreData
   const { isDark, toggleDarkMode } = useDark()
+  const { t } = useTranslation()
+
   return (
     <header className="flex items-center justify-between px-3">
       <Link
@@ -15,7 +18,7 @@ const Header: React.FC = () => {
         className="flex items-center space-x-2 text-primary transition-opacity hover:opacity-80"
       >
         <LeftOutlined className="align-middle" />
-        <span className="text-lg">重新选择扫码对象</span>
+        <span className="text-lg">{t('Select New Scan Object')}</span>
       </Link>
 
       <div className="flex flex-col items-center">
@@ -26,14 +29,13 @@ const Header: React.FC = () => {
           {dayjs(scanStoreData.scanDate).format('YYYY-MM-DD')}
         </div>
       </div>
-
       <div
         className="relative h-10 w-[120px] cursor-pointer rounded-full bg-gray-200 p-1 dark:bg-gray-600"
         onClick={toggleDarkMode}
       >
         <div className="flex h-full w-full items-center justify-between px-2 text-sm text-gray-500 dark:text-gray-400">
-          <span>浅色</span>
-          <span>暗黑</span>
+          <span>{t('Light')}</span>
+          <span>{t('Dark')}</span>
         </div>
         <div
           className="absolute left-0 top-0 flex h-full w-1/2 items-center justify-center transition-transform duration-300"

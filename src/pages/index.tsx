@@ -6,12 +6,14 @@ import { AppstoreOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Divider, Form, Input, message, Select, Space } from 'antd'
 import pinyin from 'pinyin'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { Link } from 'react-router-dom'
 import { version } from '../../package.json'
 import { ScanObject, ScanRule } from '../types'
 
 const Page: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [scanObjects, setScanObjects] = useState<ScanObject[]>([])
   const [scanRules, setScanRules] = useState<ScanRule[]>([])
@@ -45,7 +47,7 @@ const Page: React.FC = () => {
   ) => {
     e.preventDefault()
     if (!newScanObjectName) {
-      api.warning('扫码对象名称不能为空')
+      api.warning(t('Scan object name cannot be empty'))
       return
     }
     const scanObject: Omit<ScanObject, 'id'> = {
@@ -63,7 +65,7 @@ const Page: React.FC = () => {
     const { data: newScanObjects } = await getScanObjectList()
     setScanObjects(newScanObjects)
     setNewScanObjectName('')
-    api.success('新增成功')
+    api.success(t('Add Success'))
   }
 
   const onFinish = ({
@@ -98,16 +100,16 @@ const Page: React.FC = () => {
         onFinish={onFinish}
       >
         <Form.Item
-          label="扫码对象"
+          label={t('Scan Object')}
           name="scanObjectValue"
-          rules={[{ required: true, message: '请选择扫码对象' }]}
+          rules={[{ required: true, message: t('Please select scan object') }]}
         >
           <Select
             autoFocus
             defaultOpen
             allowClear
             showSearch
-            placeholder="请选择扫码对象"
+            placeholder={t('Please select scan object')}
             options={scanObjects.map(({ scanObjectName, scanObjectValue }) => ({
               label: scanObjectName,
               value: scanObjectValue,
@@ -119,7 +121,7 @@ const Page: React.FC = () => {
                 <Divider style={{ margin: '8px 0' }} />
                 <Space style={{ padding: '0 8px 4px' }}>
                   <Input
-                    placeholder="请输入扫码对象名称"
+                    placeholder={t('Please enter scan object name')}
                     onKeyDown={(e) => e.stopPropagation()}
                     value={newScanObjectName}
                     onChange={(e) => setNewScanObjectName(e.target.value)}
@@ -129,10 +131,12 @@ const Page: React.FC = () => {
                     icon={<PlusOutlined />}
                     onClick={addItem}
                   >
-                    新增
+                    {t('Add')}
                   </Button>
                   <Link to="/objects">
-                    <Button icon={<AppstoreOutlined />}>管理扫码对象</Button>
+                    <Button icon={<AppstoreOutlined />}>
+                      {t('Manage Scan Objects')}
+                    </Button>
                   </Link>
                 </Space>
               </>
@@ -140,13 +144,13 @@ const Page: React.FC = () => {
           />
         </Form.Item>
         <Form.Item
-          label="扫码规则"
+          label={t('Scan Rule')}
           name="scanRuleValue"
-          rules={[{ required: true, message: '请选择扫码规则' }]}
+          rules={[{ required: true, message: t('Please select scan rule') }]}
         >
           <Select
             allowClear
-            placeholder="请选择扫码规则"
+            placeholder={t('Please select scan rule')}
             options={scanRules.map(({ scanRuleName, scanRuleValue }) => ({
               label: scanRuleName,
               value: scanRuleValue,
@@ -158,7 +162,7 @@ const Page: React.FC = () => {
                 <Divider style={{ margin: '8px 0' }} />
                 <Link to="/rules">
                   <Button block icon={<AppstoreOutlined />}>
-                    管理扫码规则
+                    {t('Manage Scan Rules')}
                   </Button>
                 </Link>
               </>
@@ -167,16 +171,16 @@ const Page: React.FC = () => {
         </Form.Item>
         <Form.Item>
           <Button htmlType="submit" type="primary">
-            下一步
+            {t('Next')}
           </Button>
         </Form.Item>
       </Form>
       <div className="footer mt-12 text-center">
         <div className="mb-2 text-sm text-black/40 dark:text-white/40">
-          Version: {version}
+          {t('Version')}: {version}
         </div>
         <div className="text-sm text-black/40 dark:text-white/40">
-          Copyright © 2024 YangJingYu IE Team. All rights reserved.
+          {t('Copyright')}
         </div>
       </div>
       {contextHolder}

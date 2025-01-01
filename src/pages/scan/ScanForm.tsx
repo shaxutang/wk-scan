@@ -13,12 +13,14 @@ import {
   Tooltip,
 } from 'antd'
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type FormInstance = Pick<ScanDataType, 'qrcode'> & { autoFocus?: boolean }
 
 const ScanForm: React.FC<{
   onSubmit?: (data: ScanDataType) => void
 }> = ({ onSubmit }) => {
+  const { t } = useTranslation()
   const [api, contextHolder] = notification.useNotification()
   const [form] = Form.useForm<FormInstance>()
   const inputRef = useRef<InputRef>(null!)
@@ -52,14 +54,13 @@ const ScanForm: React.FC<{
       inputRef.current.focus()
       api.warning({
         key: 1,
-        message: '操作提示',
+        message: t('Operation Tips'),
         description: (
           <>
-            为防止漏扫码，已自动聚焦，请继续扫码，如果需要进行其他操作，请先
+            {t('Auto Focus Notice')}
             <button className="text-primary" onClick={onCancelAutoFocus}>
-              取消自动聚焦
+              {t('Disable Auto Focus')}
             </button>
-            。
           </>
         ),
         placement: 'top',
@@ -73,17 +74,16 @@ const ScanForm: React.FC<{
     form.setFieldValue('autoFocus', false)
     api.success({
       key: 1,
-      message: '已取消自动聚焦',
+      message: t('Auto Focus Disabled'),
       description: (
         <>
-          可以进行其他操作，请注意此时扫码不会进行录入，如需录入，请先手动将
+          {t('Manual Focus Notice')}
           <button
             className="text-primary"
             onClick={() => inputRef.current.focus()}
           >
-            文本框聚焦
+            {t('Focus Text Box')}
           </button>
-          ！
         </>
       ),
       placement: 'top',
@@ -115,10 +115,10 @@ const ScanForm: React.FC<{
       >
         <Row gutter={[16, 16]} style={{ marginInline: 0 }}>
           <Col span={8}>
-            <Form.Item label="扫描二维码" name="qrcode">
+            <Form.Item label={t('Scan QR Code')} name="qrcode">
               <Input
                 ref={inputRef}
-                placeholder="请扫描二维码"
+                placeholder={t('Please scan QR code')}
                 prefix={<ScanOutlined style={{ fontSize: 24 }} />}
                 size="large"
                 autoFocus
@@ -131,10 +131,10 @@ const ScanForm: React.FC<{
             <Form.Item
               label={
                 <span>
-                  <span className="mr-2 text-sm">自动聚焦</span>
+                  <span className="mr-2 text-sm">{t('Auto Focus')}</span>
                   <Tooltip
                     placement="topRight"
-                    title="当此选项打开后，文本将会自动框聚焦，防止漏扫码，如需其他操作，请先关闭该选项。"
+                    title={t('Auto Focus Tooltip')}
                     arrow
                   >
                     <QuestionCircleOutlined className="cursor-pointer" />

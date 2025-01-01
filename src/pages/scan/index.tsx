@@ -7,6 +7,7 @@ import { say } from '@/utils/video'
 import { Modal, notification, Result } from 'antd'
 import { throttle } from 'lodash'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Chart from './Chart'
 import Header from './Header'
 import HistoryDawerButton from './HistoryDawerButton'
@@ -48,6 +49,7 @@ const Page: React.FC = () => {
   const [errorQrCode, setErrorQrCode] = useState('')
   const [notificationApi, notificationHolder] = notification.useNotification()
   const timer = useRef<NodeJS.Timeout | null>(null)
+  const { t } = useTranslation()
 
   useEffect(() => {
     loadSnapshot()
@@ -78,9 +80,7 @@ const Page: React.FC = () => {
       showErrorModal && setShowErrorModal(false)
 
       if (!regexp.test(data.qrcode)) {
-        throttleSay(
-          '扫码异常，请确认输入法是否是英文或当前扫描条码格式是否有误',
-        )
+        throttleSay(t('Scan Error'))
         setErrorQrCode(data.qrcode)
         setShowErrorModal(true)
         clearTimeout(timer.current)
@@ -102,15 +102,15 @@ const Page: React.FC = () => {
     } else if (code === RCode.DUPLICATE) {
       notificationApi.info({
         key: 'duplicate',
-        message: '友情提示',
-        description: '当前扫描的条码重复!',
+        message: t('Friendly Reminder'),
+        description: t('Duplicate Barcode'),
         placement: 'top',
       })
     } else {
       notificationApi.error({
         key: 'error',
-        message,
-        description: '保存失败!',
+        message: message,
+        description: t('Save Failed'),
         placement: 'top',
       })
     }
@@ -139,7 +139,7 @@ const Page: React.FC = () => {
         <Chart snapshot={snapshot} className="h-full" />
       </div>
       <Modal
-        title="错误提示"
+        title={t('Error Tip')}
         open={showErrorModal}
         width="80vw"
         styles={{
@@ -157,15 +157,11 @@ const Page: React.FC = () => {
       >
         <Result
           status="error"
-          title={<h2 className="mb-4 text-4xl">条码格式错误，请重新扫码</h2>}
-          subTitle={
-            <p className="text-2xl">
-              请确认输入法是否是英文或当前扫描条码格式是否有误！
-            </p>
-          }
+          title={<h2 className="mb-4 text-4xl">{t('Barcode Format Error')}</h2>}
+          subTitle={<p className="text-2xl">{t('Input Method Check')}</p>}
         >
           <div className="text-center text-xl">
-            错误条码：
+            {t('Error Barcode')}
             <span className="text-red-500 underline">{errorQrCode}</span>
           </div>
         </Result>

@@ -14,6 +14,7 @@ import {
 } from 'antd'
 import { Dayjs } from 'dayjs'
 import { useState, useTransition } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const HistoryDawerButton: React.FC = () => {
   const [exportList, setExportList] = useState<
@@ -29,6 +30,7 @@ const HistoryDawerButton: React.FC = () => {
   const [isBatchPending, startBatchTransition] = useTransition()
   const [isLoadDataPending, startLoadDataTransition] = useTransition()
   const scanStore = useScanStore()
+  const { t } = useTranslation()
 
   const onClick = async () => {
     setOpen(true)
@@ -110,12 +112,12 @@ const HistoryDawerButton: React.FC = () => {
   return (
     <>
       <Button icon={<HistoryOutlined />} onClick={onClick}>
-        历史记录
+        {t('History')}
       </Button>
       <Drawer
         closable
         destroyOnClose
-        title="历史记录"
+        title={t('History')}
         placement="right"
         open={open}
         loading={isLoadDataPending}
@@ -128,17 +130,17 @@ const HistoryDawerButton: React.FC = () => {
               checked={selectAll}
               onChange={() => onSelectAllChange(!selectAll)}
             />
-            <span className="ml-2">全选</span>
+            <span className="ml-2">{t('Select All')}</span>
           </label>
           <Space size="middle" className="ml-auto">
-            <div>已选择「{selectedDays.length}」项</div>
+            <div>{t('Selected Items', { count: selectedDays.length })}</div>
             <Button
               loading={isBatchPending}
               icon={<ExportOutlined />}
               disabled={!selectedDays.length}
               onClick={onBatchExport}
             >
-              批量导出
+              {t('Batch Export')}
             </Button>
           </Space>
         </Flex>
@@ -172,7 +174,7 @@ const HistoryDawerButton: React.FC = () => {
                     <span>{item.name}</span>
                     {dayjs().isSame(item.date, 'D') && (
                       <span className="ml-1 text-sm text-black/40 dark:text-white/40">
-                        (今天)
+                        ({t('Today')})
                       </span>
                     )}
                   </span>
@@ -187,10 +189,10 @@ const HistoryDawerButton: React.FC = () => {
                     )}
                     onClick={() => onView(item.date)}
                   >
-                    查看
+                    {t('View')}
                   </Button>
                   <Button size="small" onClick={() => onExport(item.date)}>
-                    导出
+                    {t('Export')}
                   </Button>
                 </Space>
               </List.Item>

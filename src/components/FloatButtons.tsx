@@ -11,6 +11,7 @@ import {
   SunOutlined,
 } from '@ant-design/icons'
 import { FloatButton, message } from 'antd'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 const FloatButtons: React.FC = () => {
@@ -18,6 +19,7 @@ const FloatButtons: React.FC = () => {
   const { isDark, toggleDarkMode } = useDark()
   const navigate = useNavigate()
   const [messageApi, holder] = message.useMessage()
+  const { t } = useTranslation()
 
   const onExportDatasource = async () => {
     const { code, message } = await window.electron.exportScanWorkdir()
@@ -38,18 +40,25 @@ const FloatButtons: React.FC = () => {
         <FloatButton
           icon={isDark ? <MoonOutlined /> : <SunOutlined />}
           onClick={toggleDarkMode}
+          tooltip={isDark ? t('Light') : t('Dark')}
         />
         <FloatButton
           icon={
             isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />
           }
           onClick={toggleFullscreenMode}
+          tooltip={isFullscreen ? t('Exit Fullscreen') : t('Fullscreen')}
         />
         <FloatButton
           icon={<SettingOutlined />}
           onClick={() => navigate('/settings')}
+          tooltip={t('Settings')}
         />
-        <FloatButton icon={<ExportOutlined />} onClick={onExportDatasource} />
+        <FloatButton
+          icon={<ExportOutlined />}
+          onClick={onExportDatasource}
+          tooltip={t('Export Datasource')}
+        />
       </FloatButton.Group>
       {holder}
     </>

@@ -1,10 +1,12 @@
 import { UnorderedListOutlined } from '@ant-design/icons'
 import { Button, Drawer } from 'antd'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import ScanTable from './ScanTable'
 
 const ScanListButton: React.FC = () => {
   const [open, setOpen] = useState(false)
+  const { t } = useTranslation()
 
   const onOpen = () => {
     setOpen(true)
@@ -21,10 +23,10 @@ const ScanListButton: React.FC = () => {
         icon={<UnorderedListOutlined />}
         onClick={onOpen}
       >
-        扫码列表
+        {t('Scan List')}
       </Button>
       <Drawer
-        title="扫码列表"
+        title={t('Scan List')}
         placement="right"
         width="80vw"
         open={open}

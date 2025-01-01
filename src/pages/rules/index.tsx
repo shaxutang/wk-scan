@@ -12,6 +12,7 @@ import {
   TableProps,
 } from 'antd'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import ScanRuleFormModal from './ScanRuleFormModal'
 
@@ -19,32 +20,27 @@ const NewModalButton: React.FC<{
   onOk: (rule: Omit<ScanRule, 'id'>) => void
 }> = ({ onOk }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
-
-  const showModal = () => {
-    setIsModalOpen(true)
-  }
-
-  const handleOk = (rule: Omit<ScanRule, 'id'>) => {
-    onOk(rule)
-    setIsModalOpen(false)
-  }
-
-  const handleCancel = () => {
-    setIsModalOpen(false)
-  }
+  const { t } = useTranslation()
 
   return (
     <>
-      <Button icon={<PlusOutlined />} type="primary" onClick={showModal}>
-        新增扫码规则
+      <Button
+        icon={<PlusOutlined />}
+        type="primary"
+        onClick={() => setIsModalOpen(true)}
+      >
+        {t('Add Scan Rule')}
       </Button>
       <ScanRuleFormModal
-        title="新增"
+        title={t('Add')}
         forceRender
         destroyOnClose
         open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
+        onOk={(rule) => {
+          onOk(rule)
+          setIsModalOpen(false)
+        }}
+        onCancel={() => setIsModalOpen(false)}
         onClose={() => setIsModalOpen(false)}
       />
     </>
@@ -56,33 +52,24 @@ const EditModalButton: React.FC<{
   onOk: (rule: ScanRule) => void
 }> = ({ initValue, onOk }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
-
-  const showModal = (e: React.MouseEvent) => {
-    setIsModalOpen(true)
-  }
-
-  const handleOk = (rule: ScanRule) => {
-    onOk(rule)
-    setIsModalOpen(false)
-  }
-
-  const handleCancel = () => {
-    setIsModalOpen(false)
-  }
+  const { t } = useTranslation()
 
   return (
     <>
-      <Button type="primary" size="small" onClick={showModal}>
-        编辑
+      <Button type="primary" size="small" onClick={() => setIsModalOpen(true)}>
+        {t('Edit')}
       </Button>
       <ScanRuleFormModal
-        title="编辑"
+        title={t('Edit')}
         forceRender
         destroyOnClose
         initValue={initValue}
         open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
+        onOk={(rule) => {
+          onOk(rule)
+          setIsModalOpen(false)
+        }}
+        onCancel={() => setIsModalOpen(false)}
         onClose={() => setIsModalOpen(false)}
       />
     </>
@@ -92,6 +79,7 @@ const EditModalButton: React.FC<{
 const ScanRules: React.FC = () => {
   const [rules, setScanRules] = useState<ScanRule[]>([])
   const [api, contextHolder] = message.useMessage()
+  const { t } = useTranslation()
 
   const loadScanRules = async () => {
     const { data: scanRules } = await window.electron.getScanRuleList()
@@ -109,7 +97,7 @@ const ScanRules: React.FC = () => {
       return
     }
     loadScanRules()
-    api.success('新增成功')
+    api.success(t('Add Success'))
   }
 
   const onUpdate = async (newScanRule: ScanRule) => {
@@ -119,7 +107,7 @@ const ScanRules: React.FC = () => {
       return
     }
     loadScanRules()
-    api.success('修改成功')
+    api.success(t('Update Success'))
   }
 
   const onDelete = async (rule: ScanRule) => {
@@ -129,41 +117,41 @@ const ScanRules: React.FC = () => {
       return
     }
     loadScanRules()
-    api.success('删除成功')
+    api.success(t('Delete Success'))
   }
 
   const columns: TableProps<ScanRule>['columns'] = [
     {
-      title: '序号',
+      title: t('No.'),
       key: 'scanRuleValue',
       dataIndex: 'scanRuleValue',
       render: (text, product, index) => index + 1,
     },
     {
-      title: '扫码规则名称',
+      title: t('Scan Rule Name'),
       dataIndex: 'scanRuleName',
       key: 'scanRuleName',
     },
     {
-      title: '扫码规则',
+      title: t('Scan Rule'),
       dataIndex: 'scanRuleValue',
       key: 'scanRuleValue',
     },
     {
-      title: '操作',
+      title: t('Actions'),
       key: 'action',
       render: (_, rule) => (
         <Space>
           <EditModalButton initValue={rule} onOk={onUpdate} />
           <Popconfirm
-            title="确定要删除吗？"
-            description="删除后数据会保留，但不会再显示在列表中"
+            title={t('Confirm Delete?')}
+            description={t('Delete Description')}
             onConfirm={() => onDelete(rule)}
-            okText="确定"
-            cancelText="取消"
+            okText={t('Confirm')}
+            cancelText={t('Cancel')}
           >
             <Button type="primary" danger size="small">
-              删除
+              {t('Delete')}
             </Button>
           </Popconfirm>
         </Space>
@@ -180,7 +168,7 @@ const ScanRules: React.FC = () => {
         <Table columns={columns} dataSource={rules} rowKey="scanRuleValue" />
       </Card>
       <Link to="/">
-        <Button type="primary">返回主页</Button>
+        <Button type="primary">{t('Back to Home')}</Button>
       </Link>
       {contextHolder}
       <FloatButtons />

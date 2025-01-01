@@ -12,6 +12,7 @@ import {
   TableProps,
 } from 'antd'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import ScanObjectFormModal from './ObjectFormModal'
 
@@ -19,6 +20,7 @@ const NewModalButton: React.FC<{
   onOk: (scanObject: Omit<ScanObject, 'id'> & { id?: number }) => void
 }> = ({ onOk }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { t } = useTranslation()
 
   const showModal = (e: React.MouseEvent) => {
     setIsModalOpen(true)
@@ -36,10 +38,10 @@ const NewModalButton: React.FC<{
   return (
     <>
       <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-        新增扫码对象
+        {t('Add Scan Object')}
       </Button>
       <ScanObjectFormModal
-        title="新增"
+        title={t('Add')}
         forceRender
         destroyOnClose
         open={isModalOpen}
@@ -56,6 +58,7 @@ const EditModalButton: React.FC<{
   onOk: (scanObject: Omit<ScanObject, 'id'> & { id?: number }) => void
 }> = ({ initValue, onOk }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { t } = useTranslation()
 
   const showModal = (e: React.MouseEvent) => {
     setIsModalOpen(true)
@@ -73,10 +76,10 @@ const EditModalButton: React.FC<{
   return (
     <>
       <Button type="primary" size="small" onClick={showModal}>
-        编辑
+        {t('Edit')}
       </Button>
       <ScanObjectFormModal
-        title="编辑"
+        title={t('Edit')}
         forceRender
         destroyOnClose
         initValue={initValue}
@@ -92,6 +95,7 @@ const EditModalButton: React.FC<{
 const ScanObjects: React.FC = () => {
   const [scanObjects, setScanObjects] = useState<ScanObject[]>([])
   const [api, contextHolder] = message.useMessage()
+  const { t } = useTranslation()
 
   const loadScanObjects = async () => {
     const { getScanObjectList } = window.electron
@@ -111,7 +115,7 @@ const ScanObjects: React.FC = () => {
       return
     }
     loadScanObjects()
-    api.success('修改成功')
+    api.success(t('Update Success'))
   }
 
   const onSave = async (scanObject: Omit<ScanObject, 'id'>) => {
@@ -121,7 +125,7 @@ const ScanObjects: React.FC = () => {
       return
     }
     loadScanObjects()
-    api.success('新增成功')
+    api.success(t('Add Success'))
   }
 
   const onDelete = async (scanObject: ScanObject) => {
@@ -133,36 +137,36 @@ const ScanObjects: React.FC = () => {
       return
     }
     loadScanObjects()
-    api.success('删除成功')
+    api.success(t('Delete Success'))
   }
 
   const columns: TableProps<ScanObject>['columns'] = [
     {
-      title: '序号',
+      title: t('No.'),
       key: 'scanObjectValue',
       dataIndex: 'scanObjectValue',
       render: (text, scanObject, index) => index + 1,
     },
     {
-      title: '扫码对象名称',
+      title: t('Scan Object Name'),
       dataIndex: 'scanObjectName',
       key: 'scanObjectName',
     },
     {
-      title: '操作',
+      title: t('Actions'),
       key: 'action',
       render: (_, scanObject) => (
         <Space>
           <EditModalButton initValue={scanObject} onOk={onUpdate} />
           <Popconfirm
-            title="确定要删除吗？"
-            description="删除后数据会保留，但不会再显示在列表中"
+            title={t('Confirm Delete?')}
+            description={t('Delete Description')}
             onConfirm={() => onDelete(scanObject)}
-            okText="确定"
-            cancelText="取消"
+            okText={t('Confirm')}
+            cancelText={t('Cancel')}
           >
             <Button type="primary" danger size="small">
-              删除
+              {t('Delete')}
             </Button>
           </Popconfirm>
         </Space>
@@ -183,7 +187,7 @@ const ScanObjects: React.FC = () => {
         />
       </Card>
       <Link to="/">
-        <Button type="primary">返回主页</Button>
+        <Button type="primary">{t('Back to Home')}</Button>
       </Link>
       {contextHolder}
       <FloatButtons />

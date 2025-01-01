@@ -1,10 +1,13 @@
 import { WkrcType } from '@/main/wkrc'
 import { RCode } from '@/utils/R'
 import { FolderOpenOutlined } from '@ant-design/icons'
-import { Button, Card, Form, Input, message, Space } from 'antd'
+import { Button, Card, Form, Input, message, Radio, Space } from 'antd'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+
 const Settings = () => {
+  const { t, i18n } = useTranslation()
   const [form] = Form.useForm<WkrcType>()
   const [messageApi, holder] = message.useMessage()
   const navigate = useNavigate()
@@ -23,7 +26,8 @@ const Settings = () => {
   const onSubmit = async (values: WkrcType) => {
     const res = await window.electron.saveWkrc(values)
     if (res.code === RCode.SUCCESS) {
-      messageApi.success('保存成功')
+      messageApi.success(t('Save Success'))
+      i18n.changeLanguage(values.language)
       loadWkrc()
     } else {
       messageApi.error(res.message)
@@ -41,12 +45,19 @@ const Settings = () => {
 
   return (
     <section className="flex h-screen items-center justify-center">
-      <Card title="设置" className="w-1/2">
-        <Form<WkrcType> form={form} onFinish={onSubmit}>
+      <Card title={t('Settings')} className="w-1/2">
+        <Form<WkrcType>
+          form={form}
+          onFinish={onSubmit}
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 18 }}
+        >
           <Form.Item
-            label="工作目录"
+            label={t('Work Directory')}
             name="workDir"
-            rules={[{ required: true, message: '工作目录不能为空' }]}
+            rules={[
+              { required: true, message: t('Work directory cannot be empty') },
+            ]}
           >
             <Input
               suffix={
@@ -57,17 +68,28 @@ const Settings = () => {
               }
             />
           </Form.Item>
-          <Form.Item>
+          <Form.Item
+            label={t('Language')}
+            name="language"
+            initialValue={i18n.language}
+          >
+            <Radio.Group optionType="button">
+              <Radio value="zh">简体中文</Radio>
+              <Radio value="en">English</Radio>
+              <Radio value="vi">Tiếng Việt</Radio>
+            </Radio.Group>
+          </Form.Item>
+          <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
             <Space>
               <Button type="primary" htmlType="submit">
-                保存
+                {t('Save')}
               </Button>
               <Button
                 onClick={() => {
                   navigate('/')
                 }}
               >
-                返回首页
+                {t('Back to Home')}
               </Button>
             </Space>
           </Form.Item>
