@@ -24,8 +24,8 @@ const Statistics: React.FC<StatisticsProps> = ({
   }
 
   return (
-    <Row gutter={16}>
-      <Col span={6}>
+    <Row gutter={[16, 16]}>
+      <Col span={12} xl={{ span: 6 }}>
         <Card>
           <Statistic
             title="最新时间段产能"
@@ -36,7 +36,7 @@ const Statistics: React.FC<StatisticsProps> = ({
           />
         </Card>
       </Col>
-      <Col span={6}>
+      <Col span={12} xl={{ span: 6 }}>
         <Card>
           <Statistic
             title="总产能"
@@ -47,7 +47,7 @@ const Statistics: React.FC<StatisticsProps> = ({
           />
         </Card>
       </Col>
-      <Col span={6}>
+      <Col span={12} xl={{ span: 6 }}>
         <Card>
           <Statistic
             title="生产速度"
@@ -58,7 +58,7 @@ const Statistics: React.FC<StatisticsProps> = ({
           />
         </Card>
       </Col>
-      <Col span={6}>
+      <Col span={12} xl={{ span: 6 }}>
         <Card>
           <Statistic
             title="小时产能同比增长"

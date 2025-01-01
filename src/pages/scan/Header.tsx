@@ -9,7 +9,7 @@ const Header: React.FC = () => {
   const scanStoreData = scanStore.scanStoreData
   const { isDark, toggleDarkMode } = useDark()
   return (
-    <header className="flex items-center justify-between px-3 py-4">
+    <header className="flex items-center justify-between px-3">
       <Link
         to="/"
         className="flex items-center space-x-2 text-primary transition-opacity hover:opacity-80"

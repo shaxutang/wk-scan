@@ -117,7 +117,7 @@ const Page: React.FC = () => {
   }
 
   return (
-    <section className="flex h-screen flex-col pb-8">
+    <section className="flex h-screen flex-col py-8">
       <div>
         <Header />
         <div className="mt-8 flex items-center px-3">
