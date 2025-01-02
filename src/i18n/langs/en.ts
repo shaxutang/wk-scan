@@ -84,7 +84,7 @@ export default {
   'Add Scan Object': 'Add Scan Object',
   Edit: 'Edit',
   'Confirm Delete?': 'Confirm Delete?',
-  'Delete Description':
+  'Scan Object Delete Description':
     'Data will be retained after deletion but will not be displayed in the list',
   Confirm: 'Confirm',
   Cancel: 'Cancel',
@@ -102,4 +102,7 @@ export default {
   'Work directory cannot be empty': 'Work directory cannot be empty',
   Save: 'Save',
   Language: 'Language',
+  'Select scan object': 'Select scan object',
+  'Scan Rule Delete Description':
+    'This action cannot be undone. The rule will be permanently deleted.',
 }

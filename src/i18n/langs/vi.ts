@@ -85,7 +85,7 @@ export default {
   'Add Scan Object': 'Thêm đối tượng quét',
   Edit: 'Chỉnh sửa',
   'Confirm Delete?': 'Xác nhận xóa?',
-  'Delete Description':
+  'Scan Object Delete Description':
     'Dữ liệu sẽ được giữ lại sau khi xóa nhưng sẽ không hiển thị trong danh sách',
   Confirm: 'Xác nhận',
   Cancel: 'Hủy',
@@ -103,4 +103,7 @@ export default {
   'Work directory cannot be empty': 'Thư mục làm việc không được để trống',
   Save: 'Lưu',
   Language: 'Ngôn ngữ',
+  'Select scan object': 'Chọn đối tượng quét',
+  'Scan Rule Delete Description':
+    'Hành động này không thể hoàn tác. Quy tắc sẽ bị xóa vĩnh viễn.',
 }

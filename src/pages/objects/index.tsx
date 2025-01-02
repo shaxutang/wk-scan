@@ -160,7 +160,7 @@ const ScanObjects: React.FC = () => {
           <EditModalButton initValue={scanObject} onOk={onUpdate} />
           <Popconfirm
             title={t('Confirm Delete?')}
-            description={t('Delete Description')}
+            description={t('Scan Object Delete Description')}
             onConfirm={() => onDelete(scanObject)}
             okText={t('Confirm')}
             cancelText={t('Cancel')}

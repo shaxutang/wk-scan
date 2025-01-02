@@ -1,8 +1,9 @@
+import Clock from '@/components/Clock'
 import { useDark } from '@/hooks/useDark'
 import { useScanStore } from '@/stores/useScanStore'
 import dayjs from '@/utils/dayjs'
 import { LeftOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
-import { Select, Typography } from 'antd'
+import { Breadcrumb, Select, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
@@ -11,7 +12,7 @@ const Header: React.FC = () => {
   const scanStoreData = scanStore.scanStoreData
   const { isDark, toggleDarkMode } = useDark()
   const { t, i18n } = useTranslation()
-  const { Title, Text } = Typography
+  const { Text } = Typography
 
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value)
@@ -19,25 +20,30 @@ const Header: React.FC = () => {
   }
 
   return (
-    <div className="flex h-14 items-center justify-between border-b border-gray-200 px-6 dark:border-gray-700">
-      <Link
-        to="/"
-        className="flex items-center space-x-2 text-primary transition-opacity hover:opacity-80"
-      >
-        <LeftOutlined className="align-middle text-sm" />
-        <span className="text-sm">{t('Select New Scan Object')}</span>
-      </Link>
-
-      <div className="flex flex-col items-center">
-        <Title level={4} className="!mb-0 dark:text-white">
-          {scanStoreData.scanObject.scanObjectName}
-        </Title>
-        <Text type="secondary" className="text-xs">
+    <div className="flex h-10 items-center justify-between border-b border-gray-200 px-6 dark:border-gray-700">
+      <div className="flex items-center">
+        <Breadcrumb
+          items={[
+            {
+              title: (
+                <Link to="/">
+                  <LeftOutlined className="mr-1 align-middle" />
+                  <span>{t('Select scan object')}</span>
+                </Link>
+              ),
+            },
+            {
+              title: scanStoreData.scanObject.scanObjectName,
+            },
+          ]}
+        />
+        <Text type="secondary" className="ml-2 text-xs">
           {dayjs(scanStoreData.scanDate).format('YYYY-MM-DD')}
         </Text>
       </div>
 
       <div className="flex items-center space-x-3">
+        <Clock />
         <Select
           size="small"
           value={i18n.language}

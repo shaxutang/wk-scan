@@ -145,7 +145,7 @@ const ScanRules: React.FC = () => {
           <EditModalButton initValue={rule} onOk={onUpdate} />
           <Popconfirm
             title={t('Confirm Delete?')}
-            description={t('Delete Description')}
+            description={t('Scan Rule Delete Description')}
             onConfirm={() => onDelete(rule)}
             okText={t('Confirm')}
             cancelText={t('Cancel')}

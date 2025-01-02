@@ -82,7 +82,7 @@ export default {
   'Add Scan Object': '新增扫码对象',
   Edit: '编辑',
   'Confirm Delete?': '确定要删除吗？',
-  'Delete Description': '删除后数据会保留，但不会再显示在列表中',
+  'Scan Object Delete Description': '删除后数据会保留，但不会再显示在列表中',
   Confirm: '确定',
   Cancel: '取消',
   'No.': '序号',
@@ -99,4 +99,6 @@ export default {
   'Work directory cannot be empty': '工作目录不能为空',
   Save: '保存',
   Language: '语言',
+  'Select scan object': '选择扫码对象',
+  'Scan Rule Delete Description': '此操作不可撤销，规则将被永久删除。',
 }

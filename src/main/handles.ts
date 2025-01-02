@@ -128,6 +128,7 @@ export function expose(app: Electron.App) {
       return R.error().setMessage('扫码规则不存在')
     }
     scanRulesChain.remove((sr) => sr.id === id).commit()
+    await database.getBaseDB().write()
     return R.success()
   })
 

@@ -28,7 +28,7 @@ const HistoryDawerButton: React.FC = () => {
   const [messageApi, holder] = message.useMessage()
   const [selectedDays, setSelectedDays] = useState<Dayjs[]>([])
   const [selectAll, setSelectAll] = useState(false)
-  const [isBatchPending, startBatchTransition] = useTransition()
+  const [isExporting, setIsExporting] = useState(false)
   const [isLoadDataPending, startLoadDataTransition] = useTransition()
   const scanStore = useScanStore()
   const { t, i18n } = useTranslation()
@@ -75,24 +75,22 @@ const HistoryDawerButton: React.FC = () => {
   }
 
   const onBatchExport = async () => {
-    startBatchTransition(() => {
-      window.electron
-        .exportScanData({
-          scanObject: scanStore.scanStoreData.scanObject,
-          scanDates: selectedDays.map((day) => day.format('YYYY-MM-DD')),
-          language: i18n.language,
-        })
-        .then((res) => {
-          if (res.code === RCode.SUCCESS) {
-            messageApi.success(t('Export Success'))
-            window.electron.openExportExplorer(
-              scanStore.scanStoreData.scanObject,
-            )
-          } else {
-            messageApi.error(res.message)
-          }
-        })
-    })
+    setIsExporting(true)
+    try {
+      const res = await window.electron.exportScanData({
+        scanObject: scanStore.scanStoreData.scanObject,
+        scanDates: selectedDays.map((day) => day.format('YYYY-MM-DD')),
+        language: i18n.language,
+      })
+      if (res.code === RCode.SUCCESS) {
+        messageApi.success(t('Export Success'))
+        window.electron.openExportExplorer(scanStore.scanStoreData.scanObject)
+      } else {
+        messageApi.error(res.message)
+      }
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   const onView = (scanDate: Dayjs) => {
@@ -140,7 +138,7 @@ const HistoryDawerButton: React.FC = () => {
             key={item.date.valueOf()}
             className="flex items-center text-xl"
           >
-            <label className="flex cursor-pointer items-center text-xl">
+            <label className="flex cursor-pointer items-center text-lg">
               <Checkbox
                 checked={selectedDays.some((day) => day.isSame(item.date, 'D'))}
                 onClick={() =>
@@ -212,7 +210,7 @@ const HistoryDawerButton: React.FC = () => {
           <Space size="middle" className="ml-auto">
             <div>{t('Selected Items', { count: selectedDays.length })}</div>
             <Button
-              loading={isBatchPending}
+              loading={isExporting}
               icon={<ExportOutlined />}
               disabled={!selectedDays.length}
               onClick={onBatchExport}
@@ -226,7 +224,7 @@ const HistoryDawerButton: React.FC = () => {
             defaultActiveKey={[years[0]]}
             ghost
             items={collapseItems}
-            className="[& .ant-collapse-header]:!px-0"
+            className="[&_.ant-collapse-header]:!px-0"
           />
         ) : (
           <Empty />
