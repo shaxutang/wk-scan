@@ -61,16 +61,21 @@ const HistoryDawerButton: React.FC = () => {
   }
 
   const onExport = async (date: Dayjs) => {
-    const { code, message } = await window.electron.exportScanData({
-      scanObject: scanStore.scanStoreData.scanObject,
-      scanDates: [date.format('YYYY-MM-DD')],
-      language: i18n.language,
-    })
-    if (code === RCode.SUCCESS) {
-      messageApi.success(t('Export Success'))
-      window.electron.openExportExplorer(scanStore.scanStoreData.scanObject)
-    } else {
-      messageApi.error(message)
+    setIsExporting(true)
+    try {
+      const { code, message } = await window.electron.exportScanData({
+        scanObject: scanStore.scanStoreData.scanObject,
+        scanDates: [date.format('YYYY-MM-DD')],
+        language: i18n.language,
+      })
+      if (code === RCode.SUCCESS) {
+        messageApi.success(t('Export Success'))
+        window.electron.openExportExplorer(scanStore.scanStoreData.scanObject)
+      } else {
+        messageApi.error(message)
+      }
+    } finally {
+      setIsExporting(false)
     }
   }
 
@@ -110,30 +115,30 @@ const HistoryDawerButton: React.FC = () => {
     setSelectAll(checked)
   }
 
-  // Group data by year
+  // Group data by month
   const groupedData = exportList.reduce(
     (acc, item) => {
-      const year = item.date.year()
-      if (!acc[year]) {
-        acc[year] = []
+      const yearMonth = item.date.format('YYYY-MM')
+      if (!acc[yearMonth]) {
+        acc[yearMonth] = []
       }
-      acc[year].push(item)
+      acc[yearMonth].push(item)
       return acc
     },
-    {} as Record<number, typeof exportList>,
+    {} as Record<string, typeof exportList>,
   )
 
-  // Sort years in descending order
-  const years = Object.keys(groupedData)
-    .map(Number)
-    .sort((a, b) => b - a)
+  // Sort months in descending order
+  const months = Object.keys(groupedData).sort((a, b) => {
+    return dayjs(b).valueOf() - dayjs(a).valueOf()
+  })
 
-  const collapseItems = years.map((year) => ({
-    key: year,
-    label: year,
+  const collapseItems = months.map((month) => ({
+    key: month,
+    label: dayjs(month).format('YYYY - MM'),
     children: (
       <List className="space-y-4">
-        {groupedData[year].map((item) => (
+        {groupedData[month].map((item) => (
           <List.Item
             key={item.date.valueOf()}
             className="flex items-center text-xl"
@@ -174,7 +179,11 @@ const HistoryDawerButton: React.FC = () => {
               >
                 {t('View')}
               </Button>
-              <Button size="small" onClick={() => onExport(item.date)}>
+              <Button
+                size="small"
+                disabled={isExporting}
+                onClick={() => onExport(item.date)}
+              >
                 {t('Export')}
               </Button>
             </Space>
@@ -212,7 +221,7 @@ const HistoryDawerButton: React.FC = () => {
             <Button
               loading={isExporting}
               icon={<ExportOutlined />}
-              disabled={!selectedDays.length}
+              disabled={!selectedDays.length || isExporting}
               onClick={onBatchExport}
             >
               {t('Batch Export')}
@@ -221,7 +230,7 @@ const HistoryDawerButton: React.FC = () => {
         </Flex>
         {exportList.length ? (
           <Collapse
-            defaultActiveKey={[years[0]]}
+            defaultActiveKey={[months[0]]}
             ghost
             items={collapseItems}
             className="[&_.ant-collapse-header]:!px-0"
