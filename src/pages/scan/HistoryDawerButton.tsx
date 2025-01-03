@@ -14,7 +14,7 @@ import {
   Space,
 } from 'antd'
 import { Dayjs } from 'dayjs'
-import { useState, useTransition } from 'react'
+import { useCallback, useMemo, useState, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const HistoryDawerButton: React.FC = () => {
@@ -30,10 +30,11 @@ const HistoryDawerButton: React.FC = () => {
   const [selectAll, setSelectAll] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [isLoadDataPending, startLoadDataTransition] = useTransition()
+  const [activeKeys, setActiveKeys] = useState<string[]>([])
   const scanStore = useScanStore()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
-  const onClick = async () => {
+  const onClick = useCallback(async () => {
     setOpen(true)
     startLoadDataTransition(() => {
       window.electron
@@ -55,37 +56,45 @@ const HistoryDawerButton: React.FC = () => {
             }
             list.sort((a, b) => b.date.valueOf() - a.date.valueOf())
             setExportList(list)
+            // Set first month as active if no active keys
+            if (activeKeys.length === 0) {
+              const months = Object.keys(groupData(list)).sort((a, b) => {
+                return dayjs(b).valueOf() - dayjs(a).valueOf()
+              })
+              setActiveKeys([months[0]])
+            }
           }
         })
     })
-  }
+  }, [activeKeys.length, scanStore.scanStoreData.scanObject])
 
-  const onExport = async (date: Dayjs) => {
-    setIsExporting(true)
-    try {
-      const { code, message } = await window.electron.exportScanData({
-        scanObject: scanStore.scanStoreData.scanObject,
-        scanDates: [date.format('YYYY-MM-DD')],
-        language: i18n.language,
-      })
-      if (code === RCode.SUCCESS) {
-        messageApi.success(t('Export Success'))
-        window.electron.openExportExplorer(scanStore.scanStoreData.scanObject)
-      } else {
-        messageApi.error(message)
+  const onExport = useCallback(
+    async (date: Dayjs) => {
+      setIsExporting(true)
+      try {
+        const { code, message } = await window.electron.exportScanData({
+          scanObject: scanStore.scanStoreData.scanObject,
+          scanDates: [date.format('YYYY-MM-DD')],
+        })
+        if (code === RCode.SUCCESS) {
+          messageApi.success(t('Export Success'))
+          window.electron.openExportExplorer(scanStore.scanStoreData.scanObject)
+        } else {
+          messageApi.error(message)
+        }
+      } finally {
+        setIsExporting(false)
       }
-    } finally {
-      setIsExporting(false)
-    }
-  }
+    },
+    [messageApi, scanStore.scanStoreData.scanObject, t],
+  )
 
-  const onBatchExport = async () => {
+  const onBatchExport = useCallback(async () => {
     setIsExporting(true)
     try {
       const res = await window.electron.exportScanData({
         scanObject: scanStore.scanStoreData.scanObject,
         scanDates: selectedDays.map((day) => day.format('YYYY-MM-DD')),
-        language: i18n.language,
       })
       if (res.code === RCode.SUCCESS) {
         messageApi.success(t('Export Success'))
@@ -96,102 +105,175 @@ const HistoryDawerButton: React.FC = () => {
     } finally {
       setIsExporting(false)
     }
-  }
+  }, [messageApi, scanStore.scanStoreData.scanObject, selectedDays, t])
 
-  const onView = (scanDate: Dayjs) => {
-    scanStore.setScanStoreData({
-      ...scanStore.scanStoreData,
-      scanDate: scanDate.toDate().getTime(),
-    })
-    setOpen(false)
-  }
+  const onView = useCallback(
+    (scanDate: Dayjs) => {
+      scanStore.setScanStoreData({
+        ...scanStore.scanStoreData,
+        scanDate: scanDate.toDate().getTime(),
+      })
+      setOpen(false)
+    },
+    [scanStore],
+  )
 
-  const onSelectAllChange = (checked: boolean) => {
-    if (checked) {
-      setSelectedDays(exportList.map((item) => item.date))
-    } else {
-      setSelectedDays([])
-    }
-    setSelectAll(checked)
-  }
+  const onSelectAllChange = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        setSelectedDays(exportList.map((item) => item.date))
+      } else {
+        setSelectedDays([])
+      }
+      setSelectAll(checked)
+    },
+    [exportList],
+  )
 
   // Group data by month
-  const groupedData = exportList.reduce(
-    (acc, item) => {
-      const yearMonth = item.date.format('YYYY-MM')
-      if (!acc[yearMonth]) {
-        acc[yearMonth] = []
-      }
-      acc[yearMonth].push(item)
-      return acc
-    },
-    {} as Record<string, typeof exportList>,
+  const groupData = useCallback((list: typeof exportList) => {
+    return list.reduce(
+      (acc, item) => {
+        const yearMonth = item.date.format('YYYY-MM')
+        if (!acc[yearMonth]) {
+          acc[yearMonth] = []
+        }
+        acc[yearMonth].push(item)
+        return acc
+      },
+      {} as Record<string, typeof exportList>,
+    )
+  }, [])
+
+  const groupedData = useMemo(
+    () => groupData(exportList),
+    [exportList, groupData],
   )
 
   // Sort months in descending order
-  const months = Object.keys(groupedData).sort((a, b) => {
-    return dayjs(b).valueOf() - dayjs(a).valueOf()
-  })
+  const months = useMemo(
+    () =>
+      Object.keys(groupedData).sort(
+        (a, b) => dayjs(b).valueOf() - dayjs(a).valueOf(),
+      ),
+    [groupedData],
+  )
 
-  const collapseItems = months.map((month) => ({
-    key: month,
-    label: dayjs(month).format('YYYY - MM'),
-    children: (
-      <List className="space-y-4">
-        {groupedData[month].map((item) => (
-          <List.Item
-            key={item.date.valueOf()}
-            className="flex items-center text-xl"
-          >
-            <label className="flex cursor-pointer items-center text-lg">
-              <Checkbox
-                checked={selectedDays.some((day) => day.isSame(item.date, 'D'))}
-                onClick={() =>
-                  setSelectedDays((prev) => {
-                    const exists = prev.some((day) =>
+  const onSelectMonth = useCallback(
+    (month: string, checked: boolean) => {
+      setSelectedDays((prev) => {
+        if (checked) {
+          return [...prev, ...groupedData[month].map((item) => item.date)]
+        }
+        return prev.filter(
+          (day) =>
+            !groupedData[month].some((item) => item.date.isSame(day, 'D')),
+        )
+      })
+    },
+    [groupedData],
+  )
+
+  const collapseItems = useMemo(
+    () =>
+      months.map((month) => ({
+        key: month,
+        label: (
+          <Flex align="center" gap="middle">
+            <Checkbox
+              checked={groupedData[month].every((item) =>
+                selectedDays.some((day) => day.isSame(item.date, 'D')),
+              )}
+              indeterminate={
+                groupedData[month].some((item) =>
+                  selectedDays.some((day) => day.isSame(item.date, 'D')),
+                ) &&
+                !groupedData[month].every((item) =>
+                  selectedDays.some((day) => day.isSame(item.date, 'D')),
+                )
+              }
+              onClick={(e) => {
+                e.stopPropagation()
+                const checked = !groupedData[month].every((item) =>
+                  selectedDays.some((day) => day.isSame(item.date, 'D')),
+                )
+                onSelectMonth(month, checked)
+              }}
+            />
+            <span>{dayjs(month).format('YYYY - MM')}</span>
+          </Flex>
+        ),
+        children: (
+          <List className="space-y-4">
+            {groupedData[month].map((item) => (
+              <List.Item
+                key={item.date.valueOf()}
+                className="flex items-center text-xl"
+              >
+                <label className="flex cursor-pointer items-center text-lg">
+                  <Checkbox
+                    checked={selectedDays.some((day) =>
                       day.isSame(item.date, 'D'),
-                    )
-                    if (exists) {
-                      return prev.filter((day) => !day.isSame(item.date, 'D'))
+                    )}
+                    onClick={() =>
+                      setSelectedDays((prev) => {
+                        const exists = prev.some((day) =>
+                          day.isSame(item.date, 'D'),
+                        )
+                        if (exists) {
+                          return prev.filter(
+                            (day) => !day.isSame(item.date, 'D'),
+                          )
+                        }
+                        return [...prev, item.date]
+                      })
                     }
-                    return [...prev, item.date]
-                  })
-                }
-              />
-              <span className="ml-4">
-                <span>{item.name}</span>
-                {dayjs().isSame(item.date, 'D') && (
-                  <span className="ml-1 text-sm text-black/40 dark:text-white/40">
-                    ({t('Today')})
+                  />
+                  <span className="ml-4">
+                    <span>{item.name}</span>
+                    {dayjs().isSame(item.date, 'D') && (
+                      <span className="ml-1 text-sm text-black/40 dark:text-white/40">
+                        ({t('Today')})
+                      </span>
+                    )}
                   </span>
-                )}
-              </span>
-            </label>
-            <Space className="ml-auto">
-              <Button
-                type="primary"
-                size="small"
-                disabled={item.date.isSame(
-                  dayjs(scanStore.scanStoreData.scanDate),
-                  'D',
-                )}
-                onClick={() => onView(item.date)}
-              >
-                {t('View')}
-              </Button>
-              <Button
-                size="small"
-                disabled={isExporting}
-                onClick={() => onExport(item.date)}
-              >
-                {t('Export')}
-              </Button>
-            </Space>
-          </List.Item>
-        ))}
-      </List>
-    ),
-  }))
+                </label>
+                <Space className="ml-auto">
+                  <Button
+                    type="primary"
+                    size="small"
+                    disabled={item.date.isSame(
+                      dayjs(scanStore.scanStoreData.scanDate),
+                      'D',
+                    )}
+                    onClick={() => onView(item.date)}
+                  >
+                    {t('View')}
+                  </Button>
+                  <Button
+                    size="small"
+                    disabled={isExporting}
+                    onClick={() => onExport(item.date)}
+                  >
+                    {t('Export')}
+                  </Button>
+                </Space>
+              </List.Item>
+            ))}
+          </List>
+        ),
+      })),
+    [
+      groupedData,
+      selectedDays,
+      isExporting,
+      onExport,
+      onView,
+      onSelectMonth,
+      scanStore.scanStoreData.scanDate,
+      t,
+    ],
+  )
 
   return (
     <>
@@ -200,7 +282,7 @@ const HistoryDawerButton: React.FC = () => {
       </Button>
       <Drawer
         closable
-        destroyOnClose
+        destroyOnClose={false}
         title={t('History')}
         placement="right"
         open={open}
@@ -212,6 +294,10 @@ const HistoryDawerButton: React.FC = () => {
           <label className="cursor-pointer">
             <Checkbox
               checked={selectAll}
+              indeterminate={
+                selectedDays.length > 0 &&
+                selectedDays.length < exportList.length
+              }
               onChange={() => onSelectAllChange(!selectAll)}
             />
             <span className="ml-2">{t('Select All')}</span>
@@ -230,10 +316,11 @@ const HistoryDawerButton: React.FC = () => {
         </Flex>
         {exportList.length ? (
           <Collapse
-            defaultActiveKey={[months[0]]}
+            activeKey={activeKeys}
+            onChange={(keys) => setActiveKeys(keys as string[])}
             ghost
             items={collapseItems}
-            className="[&_.ant-collapse-header]:!px-0"
+            className="[&_.ant-collapse-content-box]:!px-8 [&_.ant-collapse-header]:!px-0"
           />
         ) : (
           <Empty />

@@ -18,6 +18,54 @@ import {
 import database from './database'
 import wkrc, { WkrcType } from './wkrc'
 
+const i18n: Record<string, Record<string, string>> = {
+  zh: {
+    scanObjectName: '扫码对象名称',
+    qrcode: '扫码对象条码',
+    state: '测试状态',
+    date: '扫码时间',
+    duplicateScanObject: '扫码对象名称重复',
+    scanObjectNotExist: '扫码对象不存在',
+    duplicateScanRule: '扫码规则名称重复',
+    scanRuleNotExist: '扫码规则不存在',
+    duplicateQrcode: '当前扫描的条码重复!',
+    exportFailed: '导出失败',
+    operationCanceled: '操作取消',
+    exportDataSourceFailed: '数据源导出失败',
+    exportData: '导出数据',
+  },
+  en: {
+    scanObjectName: 'Scan Object Name',
+    qrcode: 'Scan Object QR Code',
+    state: 'Test Status',
+    date: 'Scan Time',
+    duplicateScanObject: 'Duplicate scan object name',
+    scanObjectNotExist: 'Scan object does not exist',
+    duplicateScanRule: 'Duplicate scan rule name',
+    scanRuleNotExist: 'Scan rule does not exist',
+    duplicateQrcode: 'Current scanned QR code is duplicate!',
+    exportFailed: 'Export failed',
+    operationCanceled: 'Operation canceled',
+    exportDataSourceFailed: 'Failed to export data source',
+    exportData: 'Export Data',
+  },
+  vi: {
+    scanObjectName: 'Tên đối tượng quét',
+    qrcode: 'Mã QR đối tượng quét',
+    state: 'Trạng thái kiểm tra',
+    date: 'Thời gian quét',
+    duplicateScanObject: 'Tên đối tượng quét trùng lặp',
+    scanObjectNotExist: 'Đối tượng quét không tồn tại',
+    duplicateScanRule: 'Tên quy tắc quét trùng lặp',
+    scanRuleNotExist: 'Quy tắc quét không tồn tại',
+    duplicateQrcode: 'Mã QR quét hiện tại bị trùng lặp!',
+    exportFailed: 'Xuất thất bại',
+    operationCanceled: 'Thao tác đã hủy',
+    exportDataSourceFailed: 'Xuất nguồn dữ liệu thất bại',
+    exportData: 'Xuất dữ liệu',
+  },
+}
+
 export function expose(app: Electron.App) {
   ipcMain.handle(
     HandleType.SAVE_SCAN_OBJECT,
@@ -30,7 +78,9 @@ export function expose(app: Electron.App) {
         .value()
 
       if (scanObjectExists && scanObjectExists.id !== id) {
-        return R.duplicate().setMessage('扫码对象名称重复')
+        return R.duplicate().setMessage(
+          i18n[wkrc.get().language].duplicateScanObject,
+        )
       }
 
       if (id) {
@@ -70,7 +120,7 @@ export function expose(app: Electron.App) {
     const scanObjectsChain = database.getBaseDB().chain.get('scanObjects')
     const scanObjectExists = scanObjectsChain.find((sb) => sb.id === id)
     if (!scanObjectExists) {
-      return R.error().setMessage('扫码对象不存在')
+      return R.error().setMessage(i18n[wkrc.get().language].scanObjectNotExist)
     }
     scanObjectsChain.remove((sb) => sb.id === id).commit()
     database.getBaseDB().write()
@@ -87,7 +137,9 @@ export function expose(app: Electron.App) {
         .value()
 
       if (scanRuleExists && scanRuleExists.id !== id) {
-        return R.duplicate().setMessage('扫码规则名称重复')
+        return R.duplicate().setMessage(
+          i18n[wkrc.get().language].duplicateScanRule,
+        )
       }
       if (id) {
         scanRulesChain
@@ -125,7 +177,7 @@ export function expose(app: Electron.App) {
     const scanRulesChain = database.getBaseDB().chain.get('scanRules')
     const scanRuleExists = scanRulesChain.find((sr) => sr.id === id)
     if (!scanRuleExists) {
-      return R.error().setMessage('扫码规则不存在')
+      return R.error().setMessage(i18n[wkrc.get().language].scanRuleNotExist)
     }
     scanRulesChain.remove((sr) => sr.id === id).commit()
     await database.getBaseDB().write()
@@ -144,7 +196,9 @@ export function expose(app: Electron.App) {
         .some((scan) => scan.qrcode === data.qrcode)
         .value()
       if (scanExists) {
-        return R.duplicate().setMessage('当前扫描的条码重复!')
+        return R.duplicate().setMessage(
+          i18n[wkrc.get().language].duplicateQrcode,
+        )
       }
       chain.push(data).commit()
       await scanDB.write()
@@ -191,30 +245,25 @@ export function expose(app: Electron.App) {
       const scanList = scanDB.chain.get('scanList').value()
       const hourCapacityMap = new Map<number, number>()
 
-      // 按小时分组扫描数据
       scanList.forEach((scan) => {
         const hour = dayjs(scan.date).hour()
         hourCapacityMap.set(hour, (hourCapacityMap.get(hour) ?? 0) + 1)
       })
 
-      // 获取最近一小时的扫描数
       const hours = Array.from(hourCapacityMap.keys()).sort((k1, k2) => k2 - k1)
       const currentHour = hours[0]
       const previousHour = hours[1]
       const lastHourCapacity = hourCapacityMap.get(currentHour) ?? 0
 
-      // 计算每小时平均扫描速度
       const speed =
         hourCapacityMap.size > 0 ? scanList.length / hourCapacityMap.size : 0
 
-      // 计算增长率
       const growth = previousHour
         ? ((hourCapacityMap.get(currentHour) ?? 0) -
             (hourCapacityMap.get(previousHour) ?? 0)) /
           (hourCapacityMap.get(previousHour) ?? 1)
         : 0
 
-      // 生成图表数据
       const charData = Array.from(hourCapacityMap.keys())
         .sort((k1, k2) => k1 - k2)
         .map((hour) => ({
@@ -252,16 +301,13 @@ export function expose(app: Electron.App) {
 
   ipcMain.handle(
     HandleType.EXPORT_SCAN_DATA,
-    async (
-      event,
-      { scanObject, scanDates, language }: ExportScanDataParams,
-    ) => {
+    async (event, { scanObject, scanDates }: ExportScanDataParams) => {
       scanDates.forEach((scanDate) => {
         try {
-          exportScanData(scanObject, scanDate, language)
+          exportScanData(scanObject, scanDate)
         } catch (error) {
           return R.error().setMessage(
-            `${scanObject.scanObjectName}[${scanDate}]导出失败`,
+            `${scanObject.scanObjectName}[${scanDate}]${i18n[wkrc.get().language].exportFailed}`,
           )
         }
       })
@@ -286,7 +332,10 @@ export function expose(app: Electron.App) {
       properties: ['openDirectory'],
     })
     if (paths.canceled) {
-      return { success: true, message: '操作取消' }
+      return {
+        success: true,
+        message: i18n[wkrc.get().language].operationCanceled,
+      }
     }
     const selectPath = join(paths.filePaths[0], 'wk-scan')
     const sourcePath = join(wkrc.get().workDir)
@@ -294,7 +343,9 @@ export function expose(app: Electron.App) {
       await copy(sourcePath, selectPath, { recursive: true })
       return R.success().setData(selectPath)
     } catch (err) {
-      return R.error().setMessage('数据源导出失败')
+      return R.error().setMessage(
+        i18n[wkrc.get().language].exportDataSourceFailed,
+      )
     }
   })
 
@@ -314,42 +365,18 @@ export function expose(app: Electron.App) {
       properties: ['openDirectory'],
     })
     if (paths.canceled) {
-      return { success: true, message: '操作取消' }
+      return {
+        success: true,
+        message: i18n[wkrc.get().language].operationCanceled,
+      }
     }
     return R.success().setData(paths.filePaths[0])
   })
 }
 
-const headers: Record<string, Record<string, string>> = {
-  scanObjectName: {
-    zh: '扫码对象名称',
-    en: 'Scan Object Name',
-    vi: 'Tên đối tượng quét',
-  },
-  qrcode: {
-    zh: '扫码对象条码',
-    en: 'Scan Object QR Code',
-    vi: 'Mã QR đối tượng quét',
-  },
-  state: {
-    zh: '测试状态',
-    en: 'Test Status',
-    vi: 'Trạng thái kiểm tra',
-  },
-  date: {
-    zh: '扫码时间',
-    en: 'Scan Time',
-    vi: 'Thời gian quét',
-  },
-}
-
-async function exportScanData(
-  scanObject: ScanObject,
-  scanDate: string,
-  language: string = 'zh',
-) {
+async function exportScanData(scanObject: ScanObject, scanDate: string) {
   const workbook = new Workbook()
-  const worksheet = workbook.addWorksheet('导出数据')
+  const worksheet = workbook.addWorksheet(i18n[wkrc.get().language].exportData)
   const scanList = database
     .getScanDB({
       scanDate,
@@ -360,13 +387,25 @@ async function exportScanData(
 
   worksheet.columns = [
     {
-      header: headers.scanObjectName[language],
+      header: i18n[wkrc.get().language].scanObjectName,
       key: 'scanObjectName',
       width: 20,
     },
-    { header: headers.qrcode[language], key: 'qrcode', width: 30 },
-    { header: headers.state[language], key: 'state', width: 20 },
-    { header: headers.date[language], key: 'date', width: 20 },
+    {
+      header: i18n[wkrc.get().language].qrcode,
+      key: 'qrcode',
+      width: 30,
+    },
+    {
+      header: i18n[wkrc.get().language].state,
+      key: 'state',
+      width: 20,
+    },
+    {
+      header: i18n[wkrc.get().language].date,
+      key: 'date',
+      width: 20,
+    },
   ]
 
   scanList
