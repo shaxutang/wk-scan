@@ -106,14 +106,17 @@ const compatibleScanData = (product: Product) => {
     console.error(`Error processing product ${product.productValue}:`, err)
   }
 }
-
 const renameOldDir = () => {
   const oldPath = join(os.homedir(), 'wk/qr-scan')
-
-  const newPath = join(os.homedir(), 'wk/qr-scan-deprecated')
+  let newPath = join(os.homedir(), 'wk/qr-scan-deprecated')
 
   try {
     if (fs.existsSync(oldPath)) {
+      let counter = 1
+      while (fs.existsSync(newPath)) {
+        newPath = join(os.homedir(), `wk/qr-scan-deprecated-${counter}`)
+        counter++
+      }
       fs.renameSync(oldPath, newPath)
     }
   } catch (err) {
