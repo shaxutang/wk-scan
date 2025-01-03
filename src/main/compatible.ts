@@ -75,15 +75,26 @@ const compatibleScanData = (product: Product) => {
             const newData = fs.readFileSync(newDataPath, 'utf-8')
             const newScanData: ScanDBType = JSON.parse(newData)
 
-            const oldData = readOldData.map((data) => ({
-              id: newScanData.scanList.length + 1,
-              scanObjectName: product.productName,
-              scanObjectValue: product.productValue,
-              qrcode: data.qrcode,
-              date: data.date,
-            }))
+            const existingQRCodes = new Set(
+              newScanData.scanList.map((item) => item.qrcode),
+            )
+
+            const oldData = readOldData
+              .filter((data) => !existingQRCodes.has(data.qrcode))
+              .map((data, index) => ({
+                id: newScanData.scanList.length + index + 1,
+                scanObjectName: product.productName,
+                scanObjectValue: product.productValue,
+                qrcode: data.qrcode,
+                date: data.date,
+              }))
 
             newScanData.scanList.push(...oldData)
+
+            newScanData.scanList = newScanData.scanList.map((item, index) => ({
+              ...item,
+              id: index + 1,
+            }))
 
             fs.writeFileSync(newDataPath, JSON.stringify(newScanData, null, 2))
           }
