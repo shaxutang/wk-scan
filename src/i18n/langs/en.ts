@@ -105,4 +105,5 @@ export default {
   'Select scan object': 'Select scan object',
   'Scan Rule Delete Description':
     'This action cannot be undone. The rule will be permanently deleted.',
+  'App Title': 'IE-Scanner',
 }

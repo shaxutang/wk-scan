@@ -76,6 +76,7 @@ const Settings = () => {
             <Radio.Group optionType="button">
               <Radio value="zh">简体中文</Radio>
               <Radio value="en">English</Radio>
+              <Radio value="jap">日本語</Radio>
               <Radio value="vi">Tiếng Việt</Radio>
             </Radio.Group>
           </Form.Item>

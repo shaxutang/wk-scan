@@ -53,6 +53,7 @@ const Header: React.FC = () => {
           options={[
             { value: 'zh', label: '简体中文' },
             { value: 'en', label: 'English' },
+            { value: 'jap', label: '日本語' },
             { value: 'vi', label: 'Tiếng Việt' },
           ]}
         />

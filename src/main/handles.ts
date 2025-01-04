@@ -64,6 +64,21 @@ const i18n: Record<string, Record<string, string>> = {
     exportDataSourceFailed: 'Xuất nguồn dữ liệu thất bại',
     exportData: 'Xuất dữ liệu',
   },
+  jap: {
+    scanObjectName: 'スキャンオブジェクト名',
+    qrcode: 'スキャンオブジェクトQRコード',
+    state: 'テストステータス',
+    date: 'スキャン時間',
+    duplicateScanObject: 'スキャンオブジェクト名が重複しています',
+    scanObjectNotExist: 'スキャンオブジェクトが存在しません',
+    duplicateScanRule: 'スキャンルール名が重複しています',
+    scanRuleNotExist: 'スキャンルールが存在しません',
+    duplicateQrcode: '現在スキャンされたQRコードが重複しています！',
+    exportFailed: 'エクスポートに失敗しました',
+    operationCanceled: '操作がキャンセルされました',
+    exportDataSourceFailed: 'データソースのエクスポートに失敗しました',
+    exportData: 'データをエクスポート',
+  },
 }
 
 export function expose(app: Electron.App) {

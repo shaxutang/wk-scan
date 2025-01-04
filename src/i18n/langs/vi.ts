@@ -106,4 +106,5 @@ export default {
   'Select scan object': 'Chọn đối tượng quét',
   'Scan Rule Delete Description':
     'Hành động này không thể hoàn tác. Quy tắc sẽ bị xóa vĩnh viễn.',
+  'App Title': 'IE-Máy quét',
 }
