@@ -108,13 +108,13 @@ const compatibleScanData = (product: Product) => {
 }
 const renameOldDir = () => {
   const oldPath = join(os.homedir(), 'wk/qr-scan')
-  let newPath = join(os.homedir(), 'wk/qr-scan-deprecated')
+  let newPath = join(os.homedir(), 'wk/qr-scan-backup')
 
   try {
     if (fs.existsSync(oldPath)) {
       let counter = 1
       while (fs.existsSync(newPath)) {
-        newPath = join(os.homedir(), `wk/qr-scan-deprecated-${counter}`)
+        newPath = join(os.homedir(), `wk/qr-scan-backup-${counter}`)
         counter++
       }
       fs.renameSync(oldPath, newPath)
