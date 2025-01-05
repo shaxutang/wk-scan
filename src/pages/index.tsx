@@ -1,10 +1,8 @@
 import FloatButtons from '@/components/FloatButtons'
 import { useScanStore } from '@/stores/useScanStore'
 import dayjs from '@/utils/dayjs'
-import { RCode } from '@/utils/R'
-import { AppstoreOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Divider, Form, Input, message, Select, Space } from 'antd'
-import pinyin from 'pinyin'
+import { AppstoreOutlined } from '@ant-design/icons'
+import { Button, Divider, Form, message, Select } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -17,7 +15,7 @@ const Page: React.FC = () => {
   const navigate = useNavigate()
   const [scanObjects, setScanObjects] = useState<ScanObject[]>([])
   const [scanRules, setScanRules] = useState<ScanRule[]>([])
-  const [newScanObjectName, setNewScanObjectName] = useState<string>('')
+  // const [newScanObjectName, setNewScanObjectName] = useState<string>('')
   const [api, contextHolder] = message.useMessage()
   const [form] = Form.useForm()
   const scanStore = useScanStore()
@@ -42,31 +40,31 @@ const Page: React.FC = () => {
     }
   }
 
-  const addItem = async (
-    e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>,
-  ) => {
-    e.preventDefault()
-    if (!newScanObjectName) {
-      api.warning(t('Scan object name cannot be empty'))
-      return
-    }
-    const scanObject: Omit<ScanObject, 'id'> = {
-      scanObjectName: newScanObjectName,
-      scanObjectValue: pinyin(newScanObjectName)
-        .reduce((s1, s2) => [...s1, ...s2])
-        .join('_'),
-    }
-    const { saveScanObject, getScanObjectList } = window.electron
-    const { code, message } = await saveScanObject(scanObject)
-    if (code !== RCode.SUCCESS) {
-      api.error(message)
-      return
-    }
-    const { data: newScanObjects } = await getScanObjectList()
-    setScanObjects(newScanObjects)
-    setNewScanObjectName('')
-    api.success(t('Add Success'))
-  }
+  // const addItem = async (
+  //   e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>,
+  // ) => {
+  //   e.preventDefault()
+  //   if (!newScanObjectName) {
+  //     api.warning(t('Scan object name cannot be empty'))
+  //     return
+  //   }
+  //   const scanObject: Omit<ScanObject, 'id'> = {
+  //     scanObjectName: newScanObjectName,
+  //     scanObjectValue: pinyin(newScanObjectName)
+  //       .reduce((s1, s2) => [...s1, ...s2])
+  //       .join('_'),
+  //   }
+  //   const { saveScanObject, getScanObjectList } = window.electron
+  //   const { code, message } = await saveScanObject(scanObject)
+  //   if (code !== RCode.SUCCESS) {
+  //     api.error(message)
+  //     return
+  //   }
+  //   const { data: newScanObjects } = await getScanObjectList()
+  //   setScanObjects(newScanObjects)
+  //   setNewScanObjectName('')
+  //   api.success(t('Add Success'))
+  // }
 
   const onFinish = ({
     scanObjectValue,
@@ -119,26 +117,11 @@ const Page: React.FC = () => {
               <>
                 {menu}
                 <Divider style={{ margin: '8px 0' }} />
-                <Space style={{ padding: '0 8px 4px' }}>
-                  <Input
-                    placeholder={t('Please enter scan object name')}
-                    onKeyDown={(e) => e.stopPropagation()}
-                    value={newScanObjectName}
-                    onChange={(e) => setNewScanObjectName(e.target.value)}
-                  />
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={addItem}
-                  >
-                    {t('Add')}
+                <Link to="/objects">
+                  <Button block icon={<AppstoreOutlined />}>
+                    {t('Manage Scan Objects')}
                   </Button>
-                  <Link to="/objects">
-                    <Button icon={<AppstoreOutlined />}>
-                      {t('Manage Scan Objects')}
-                    </Button>
-                  </Link>
-                </Space>
+                </Link>
               </>
             )}
           />
