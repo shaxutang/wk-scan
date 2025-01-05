@@ -4,7 +4,8 @@ import { ScanDataType, Snapshot } from '@/types'
 import dayjs from '@/utils/dayjs'
 import { RCode } from '@/utils/R'
 import { say } from '@/utils/video'
-import { Modal, notification, Result } from 'antd'
+import { RollbackOutlined } from '@ant-design/icons/lib'
+import { Button, Modal, notification, Result, Space } from 'antd'
 import { throttle } from 'lodash'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -124,7 +125,23 @@ const Page: React.FC = () => {
           <div className="flex-auto">
             <ScanForm onSubmit={onSubmit} />
           </div>
-          <HistoryDawerButton />
+          <Space>
+            {!dayjs().isSame(dayjs(scanStore.scanStoreData.scanDate), 'D') && (
+              <Button
+                type="primary"
+                icon={<RollbackOutlined />}
+                onClick={() =>
+                  scanStore.setScanStoreData({
+                    ...scanStore.scanStoreData,
+                    scanDate: dayjs().toDate().getTime(),
+                  })
+                }
+              >
+                返回到今天
+              </Button>
+            )}
+            <HistoryDawerButton />
+          </Space>
         </div>
         <div className="mt-8 px-3">
           <Statistics

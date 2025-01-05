@@ -67,8 +67,9 @@ async function getSnapshot(
 // 获取扫描历史
 async function getScanHistory(
   scanObject: ScanObject,
+  year: string,
 ): Promise<ResultType<ScanHistory[]>> {
-  return ipcRenderer.invoke(HandleType.GET_SCAN_HISTORY, scanObject)
+  return ipcRenderer.invoke(HandleType.GET_SCAN_HISTORY, scanObject, year)
 }
 
 // 导出扫描数据

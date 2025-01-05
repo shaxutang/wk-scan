@@ -3,9 +3,11 @@ import dayjs from '@/utils/dayjs'
 import { RCode } from '@/utils/R'
 import { ExportOutlined, HistoryOutlined } from '@ant-design/icons/lib'
 import {
+  Badge,
   Button,
   Checkbox,
   Collapse,
+  DatePicker,
   Drawer,
   Empty,
   Flex,
@@ -27,46 +29,67 @@ const HistoryDawerButton: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false)
   const [messageApi, holder] = message.useMessage()
   const [selectedDays, setSelectedDays] = useState<Dayjs[]>([])
-  const [selectAll, setSelectAll] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [isLoadDataPending, startLoadDataTransition] = useTransition()
   const [activeKeys, setActiveKeys] = useState<string[]>([])
+  const [selectedYear, setSelectedYear] = useState<string>(
+    dayjs().format('YYYY'),
+  )
   const scanStore = useScanStore()
   const { t } = useTranslation()
 
+  const loadHistoryData = useCallback(
+    (year: string) => {
+      startLoadDataTransition(() => {
+        window.electron
+          .getScanHistory(scanStore.scanStoreData.scanObject, year)
+          .then((res) => {
+            if (res.code === RCode.SUCCESS) {
+              const list = res.data.map((item) => ({
+                name: item.name,
+                date: dayjs(item.date),
+              }))
+              const hasNow = list.some((item) =>
+                dayjs(item.date).isSame(dayjs(), 'D'),
+              )
+              if (!hasNow && year === dayjs().format('YYYY')) {
+                list.push({
+                  name: dayjs().format('YYYY-MM-DD'),
+                  date: dayjs(),
+                })
+              }
+              list.sort((a, b) => b.date.valueOf() - a.date.valueOf())
+              setExportList(list)
+              // Set first month as active if no active keys
+              if (activeKeys.length === 0) {
+                const months = Object.keys(groupData(list)).sort((a, b) => {
+                  return dayjs(b).valueOf() - dayjs(a).valueOf()
+                })
+                setActiveKeys([months[0]])
+              }
+            }
+          })
+      })
+    },
+    [activeKeys.length, scanStore.scanStoreData.scanObject],
+  )
+
   const onClick = useCallback(async () => {
     setOpen(true)
-    startLoadDataTransition(() => {
-      window.electron
-        .getScanHistory(scanStore.scanStoreData.scanObject)
-        .then((res) => {
-          if (res.code === RCode.SUCCESS) {
-            const list = res.data.map((item) => ({
-              name: item.name,
-              date: dayjs(item.date),
-            }))
-            const hasNow = list.some((item) =>
-              dayjs(item.date).isSame(dayjs(), 'D'),
-            )
-            if (!hasNow) {
-              list.push({
-                name: dayjs().format('YYYY-MM-DD'),
-                date: dayjs(),
-              })
-            }
-            list.sort((a, b) => b.date.valueOf() - a.date.valueOf())
-            setExportList(list)
-            // Set first month as active if no active keys
-            if (activeKeys.length === 0) {
-              const months = Object.keys(groupData(list)).sort((a, b) => {
-                return dayjs(b).valueOf() - dayjs(a).valueOf()
-              })
-              setActiveKeys([months[0]])
-            }
-          }
-        })
-    })
-  }, [activeKeys.length, scanStore.scanStoreData.scanObject])
+    loadHistoryData(selectedYear)
+  }, [loadHistoryData, selectedYear])
+
+  const onYearChange = useCallback(
+    (date: Dayjs | null) => {
+      if (date) {
+        const year = date.format('YYYY')
+        setSelectedYear(year)
+        setSelectedDays([])
+        loadHistoryData(year)
+      }
+    },
+    [loadHistoryData],
+  )
 
   const onExport = useCallback(
     async (date: Dayjs) => {
@@ -125,7 +148,6 @@ const HistoryDawerButton: React.FC = () => {
       } else {
         setSelectedDays([])
       }
-      setSelectAll(checked)
     },
     [exportList],
   )
@@ -290,30 +312,56 @@ const HistoryDawerButton: React.FC = () => {
         width={560}
         onClose={() => setOpen(false)}
       >
-        <Flex gap="small" className="mb-4">
-          <label className="cursor-pointer">
-            <Checkbox
-              checked={selectAll}
-              indeterminate={
-                selectedDays.length > 0 &&
-                selectedDays.length < exportList.length
-              }
-              onChange={() => onSelectAllChange(!selectAll)}
+        <Flex
+          gap="small"
+          justify="space-between"
+          align="center"
+          className="mb-4"
+        >
+          <label htmlFor="year-picker" className="flex items-center gap-4">
+            <span>{t('Year')}:</span>
+            <DatePicker
+              id="year-picker"
+              picker="year"
+              value={dayjs(selectedYear)}
+              onChange={onYearChange}
+              disabledDate={(date) => {
+                const year = date.year()
+                return year < 2024 || year > dayjs().year()
+              }}
             />
-            <span className="ml-2">{t('Select All')}</span>
           </label>
-          <Space size="middle" className="ml-auto">
-            <div>{t('Selected Items', { count: selectedDays.length })}</div>
-            <Button
-              loading={isExporting}
-              icon={<ExportOutlined />}
-              disabled={!selectedDays.length || isExporting}
-              onClick={onBatchExport}
-            >
-              {t('Batch Export')}
-            </Button>
-          </Space>
+          <div className="flex items-center gap-4">
+            <label className="cursor-pointer">
+              <Checkbox
+                checked={selectedDays.length === exportList.length}
+                indeterminate={
+                  selectedDays.length > 0 &&
+                  selectedDays.length < exportList.length
+                }
+                onChange={() => {
+                  if (selectedDays.length === exportList.length) {
+                    setSelectedDays([])
+                  } else {
+                    setSelectedDays(exportList.map((item) => item.date))
+                  }
+                }}
+              />
+              <span className="ml-2">{t('Select All')}</span>
+            </label>
+            <Badge count={selectedDays.length}>
+              <Button
+                loading={isExporting}
+                icon={<ExportOutlined />}
+                disabled={!selectedDays.length || isExporting}
+                onClick={onBatchExport}
+              >
+                {t('Batch Export')}
+              </Button>
+            </Badge>
+          </div>
         </Flex>
+
         {exportList.length ? (
           <Collapse
             activeKey={activeKeys}

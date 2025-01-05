@@ -108,4 +108,5 @@ export default {
   'App Title': 'IE-Scanner',
   'Please enter scan rule name': 'Please enter scan rule name',
   'Please enter scan rule': 'Please enter scan rule',
+  Year: 'Year',
 }

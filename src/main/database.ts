@@ -4,7 +4,6 @@ import lodash from 'lodash'
 import { Low } from 'lowdb'
 import { JSONFile } from 'lowdb/node'
 import { join } from 'path'
-import compatible from './compatible'
 import { scanObjects, scanRules } from './default'
 import wkrc from './wkrc'
 
@@ -33,7 +32,6 @@ export class Database {
   private scanDB: LowWithLodash<ScanDBType> = null
 
   constructor() {
-    compatible()
     this.loadBaseDB()
   }
 
@@ -44,9 +42,10 @@ export class Database {
       return
     }
 
+    const [year, month, day] = scanConfig.scanDate.split('-')
     const scanPath = join(
       wkrc.get().workDir,
-      `data/${scanConfig.scanObject.scanObjectValue}/${scanConfig.scanDate}`,
+      `data/${scanConfig.scanObject.scanObjectValue}/${year}/${month}/${day}`,
     )
 
     if (!fs.existsSync(scanPath)) {

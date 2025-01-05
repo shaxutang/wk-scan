@@ -300,16 +300,34 @@ export function expose(app: Electron.App) {
 
   ipcMain.handle(
     HandleType.GET_SCAN_HISTORY,
-    async (event, scanObject: ScanObject) => {
-      const dataDirs = fs.readdirSync(
-        join(wkrc.get().workDir, `data/${scanObject.scanObjectValue}`),
+    async (event, scanObject: ScanObject, year = dayjs().format('YYYY')) => {
+      const yearPath = join(
+        wkrc.get().workDir,
+        `data/${scanObject.scanObjectValue}/${year}`,
       )
-      const data = dataDirs.map((dir) => {
-        return {
-          date: dayjs(dir).format('YYYY-MM-DD'),
-          name: dayjs(dir).format('YYYY-MM-DD'),
-        }
+      if (!fs.existsSync(yearPath)) {
+        return R.success<ScanHistory[]>().setData([])
+      }
+
+      const months = fs.readdirSync(yearPath)
+      const data: ScanHistory[] = []
+
+      months.forEach((month) => {
+        const monthPath = join(yearPath, month)
+        const days = fs.readdirSync(monthPath)
+
+        days.forEach((day) => {
+          const dataPath = join(monthPath, day, 'data.json')
+          if (fs.existsSync(dataPath)) {
+            const date = `${year}-${month}-${day}`
+            data.push({
+              date,
+              name: date,
+            })
+          }
+        })
       })
+
       return R.success<ScanHistory[]>().setData(data)
     },
   )
