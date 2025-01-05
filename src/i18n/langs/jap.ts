@@ -110,4 +110,5 @@ export default {
   'Please enter scan rule name': 'スキャンルール名を入力してください',
   'Please enter scan rule': 'スキャンルールを入力してください',
   Year: '年',
+  'Back to Today': '今日に戻る',
 }

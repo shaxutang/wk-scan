@@ -105,4 +105,5 @@ export default {
   'Please enter scan rule name': '请输入扫码规则名称',
   'Please enter scan rule': '请输入扫码规则',
   Year: '年份',
+  'Back to Today': '返回到今天',
 }

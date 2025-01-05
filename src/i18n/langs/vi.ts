@@ -110,4 +110,5 @@ export default {
   'Please enter scan rule name': 'Vui lòng nhập tên quy tắc quét',
   'Please enter scan rule': 'Vui lòng nhập quy tắc quét',
   Year: 'Năm',
+  'Back to Today': 'Trở về hôm nay',
 }

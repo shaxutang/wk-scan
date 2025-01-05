@@ -137,7 +137,7 @@ const Page: React.FC = () => {
                   })
                 }
               >
-                返回到今天
+                {t('Back to Today')}
               </Button>
             )}
             <HistoryDawerButton />
