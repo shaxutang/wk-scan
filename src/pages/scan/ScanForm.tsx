@@ -15,73 +15,57 @@ import {
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-type FormInstance = Pick<ScanDataType, 'qrcode'> & { autoFocus?: boolean }
+interface FormValues {
+  qrcode: string
+  autoFocus: boolean
+}
 
 const ScanForm: React.FC<{
   onSubmit?: (data: ScanDataType) => void
 }> = ({ onSubmit }) => {
   const { t } = useTranslation()
   const [api, contextHolder] = notification.useNotification()
-  const [form] = Form.useForm<FormInstance>()
+  const [form] = Form.useForm<FormValues>()
   const inputRef = useRef<InputRef>(null!)
   const scanStore = useScanStore()
 
-  useEffect(() => {
-    if (
-      form.getFieldValue('autoFocus') &&
-      dayjs().isSame(
-        dayjs(scanStore.scanStoreData.scanDate).format('YYYY-MM-DD'),
-        'D',
-      )
-    ) {
-      inputRef.current.focus()
-    }
-  }, [scanStore.scanStoreData.scanDate])
-
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      onSubmit({
-        date: dayjs().toDate().getTime(),
-        qrcode: (e.currentTarget as HTMLInputElement).value,
-        ...scanStore.scanStoreData.scanObject,
-      })
-      form.resetFields(['qrcode'])
-    }
+  const isSameDay = () => {
+    return dayjs().isSame(
+      dayjs(scanStore.scanStoreData.scanDate).format('YYYY-MM-DD'),
+      'D',
+    )
   }
 
-  const onBlur = () => {
-    if (form.getFieldValue('autoFocus')) {
-      inputRef.current.focus()
-      api.warning({
-        key: 1,
-        message: t('Operation Tips'),
-        description: (
-          <>
-            {t('Auto Focus Notice')}
-            <button className="text-primary" onClick={onCancelAutoFocus}>
-              {t('Disable Auto Focus')}
-            </button>
-          </>
-        ),
-        placement: 'top',
-        showProgress: true,
-        pauseOnHover: true,
-      })
-    }
+  const focusInput = () => {
+    inputRef.current.focus()
   }
 
-  const onCancelAutoFocus = () => {
-    form.setFieldValue('autoFocus', false)
+  const showAutoFocusWarning = () => {
+    api.warning({
+      key: 'auto-focus',
+      message: t('Operation Tips'),
+      description: (
+        <>
+          {t('Auto Focus Notice')}
+          <button className="text-primary" onClick={handleDisableAutoFocus}>
+            {t('Disable Auto Focus')}
+          </button>
+        </>
+      ),
+      placement: 'top',
+      showProgress: true,
+      pauseOnHover: true,
+    })
+  }
+
+  const showManualFocusSuccess = () => {
     api.success({
-      key: 1,
+      key: 'manual-focus',
       message: t('Auto Focus Disabled'),
       description: (
         <>
           {t('Manual Focus Notice')}
-          <button
-            className="text-primary"
-            onClick={() => inputRef.current.focus()}
-          >
+          <button className="text-primary" onClick={focusInput}>
             {t('Focus Text Box')}
           </button>
         </>
@@ -92,9 +76,38 @@ const ScanForm: React.FC<{
     })
   }
 
-  const onChecked = (checked: boolean) => {
+  useEffect(() => {
+    if (form.getFieldValue('autoFocus') && isSameDay()) {
+      focusInput()
+    }
+  }, [scanStore.scanStoreData.scanDate])
+
+  const handleSubmit = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      onSubmit?.({
+        date: dayjs().toDate().getTime(),
+        qrcode: (e.currentTarget as HTMLInputElement).value,
+        ...scanStore.scanStoreData.scanObject,
+      })
+      form.resetFields(['qrcode'])
+    }
+  }
+
+  const handleBlur = () => {
+    if (form.getFieldValue('autoFocus')) {
+      focusInput()
+      showAutoFocusWarning()
+    }
+  }
+
+  const handleDisableAutoFocus = () => {
+    form.setFieldValue('autoFocus', false)
+    showManualFocusSuccess()
+  }
+
+  const handleAutoFocusChange = (checked: boolean) => {
     if (checked) {
-      inputRef.current.focus()
+      focusInput()
     } else {
       api.destroy()
     }
@@ -102,15 +115,13 @@ const ScanForm: React.FC<{
 
   return (
     <>
-      <Form<{
-        qrcode: string
-      }>
+      <Form<FormValues>
         form={form}
         initialValues={{
           qrcode: '',
           autoFocus: true,
         }}
-        disabled={!dayjs().isSame(dayjs(scanStore.scanStoreData.scanDate), 'D')}
+        disabled={!isSameDay()}
         className="[&_.ant-form-item]:!mb-0"
       >
         <Row gutter={[16, 16]} style={{ marginInline: 0 }}>
@@ -122,8 +133,8 @@ const ScanForm: React.FC<{
                 prefix={<ScanOutlined style={{ fontSize: 24 }} />}
                 size="large"
                 autoFocus
-                onKeyDown={(e) => onKeyDown(e)}
-                onBlur={onBlur}
+                onKeyDown={handleSubmit}
+                onBlur={handleBlur}
               />
             </Form.Item>
           </Col>
@@ -144,7 +155,7 @@ const ScanForm: React.FC<{
               name="autoFocus"
               valuePropName="checked"
             >
-              <Switch defaultChecked onChange={onChecked} />
+              <Switch defaultChecked onChange={handleAutoFocusChange} />
             </Form.Item>
           </Col>
         </Row>

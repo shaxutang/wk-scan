@@ -3,7 +3,7 @@ import fs from 'fs'
 import { join } from 'path'
 import wkrc from './wkrc'
 
-export default function (...message: string[]) {
+export default async function (...message: string[]) {
   const date = dayjs().format('YYYY-MM-DD')
   const logDir = join(wkrc.get().workDir, 'logs')
   const logFile = join(logDir, `${date}.log`)
