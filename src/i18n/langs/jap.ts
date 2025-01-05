@@ -107,4 +107,6 @@ export default {
   'Scan Rule Delete Description':
     'この操作は取り消せません。ルールは完全に削除されます。',
   'App Title': 'IE-スキャナー',
+  'Please enter scan rule name': 'スキャンルール名を入力してください',
+  'Please enter scan rule': 'スキャンルールを入力してください',
 }

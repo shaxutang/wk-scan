@@ -106,4 +106,6 @@ export default {
   'Scan Rule Delete Description':
     'This action cannot be undone. The rule will be permanently deleted.',
   'App Title': 'IE-Scanner',
+  'Please enter scan rule name': 'Please enter scan rule name',
+  'Please enter scan rule': 'Please enter scan rule',
 }

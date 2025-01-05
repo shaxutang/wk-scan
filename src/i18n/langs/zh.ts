@@ -102,4 +102,6 @@ export default {
   'Select scan object': '选择扫码对象',
   'Scan Rule Delete Description': '此操作不可撤销，规则将被永久删除。',
   'App Title': 'IE-扫码',
+  'Please enter scan rule name': '请输入扫码规则名称',
+  'Please enter scan rule': '请输入扫码规则',
 }

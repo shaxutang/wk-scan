@@ -42,7 +42,7 @@ const ScanRuleFormModal: React.FC<ScanRuleFormModalProps> = ({
 
   return (
     <Modal {...rest} onOk={handleOk} onCancel={handleCancel}>
-      <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
+      <Form form={form} layout="vertical">
         <Form.Item
           name="scanRuleName"
           label={t('Scan Rule Name')}

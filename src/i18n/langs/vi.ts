@@ -107,4 +107,6 @@ export default {
   'Scan Rule Delete Description':
     'Hành động này không thể hoàn tác. Quy tắc sẽ bị xóa vĩnh viễn.',
   'App Title': 'IE-Máy quét',
+  'Please enter scan rule name': 'Vui lòng nhập tên quy tắc quét',
+  'Please enter scan rule': 'Vui lòng nhập quy tắc quét',
 }

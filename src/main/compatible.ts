@@ -180,16 +180,22 @@ export default function () {
       const rulesContent = fs.readFileSync(rulesPath, 'utf-8')
       rules = JSON.parse(rulesContent) || []
 
+      const existingDefaultRule = newBaseData.scanRules.find(
+        (rule) => rule.isDefault,
+      )
+
       rules.forEach((rule: Rule) => {
         const scanRuleExists = newBaseData.scanRules.some(
           (scanRule: ScanRule) => scanRule.scanRuleValue === rule.ruleValue,
         )
         if (!scanRuleExists) {
+          const shouldBeDefault = rule.isDefault && !existingDefaultRule
+
           newBaseData.scanRules.push({
             id: newBaseData.scanRules.length + 1,
             scanRuleName: rule.ruleName,
             scanRuleValue: rule.ruleValue,
-            isDefault: rule.isDefault,
+            isDefault: shouldBeDefault,
           })
         }
       })

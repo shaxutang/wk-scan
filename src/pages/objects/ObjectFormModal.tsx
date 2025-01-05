@@ -46,7 +46,7 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
 
   return (
     <Modal {...rest} onOk={handleOk} onCancel={handleCancel}>
-      <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
+      <Form form={form} layout="vertical">
         <Form.Item
           name="scanObjectName"
           label={t('Scan Object Name')}
