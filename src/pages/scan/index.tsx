@@ -17,26 +17,6 @@ import Statistics from './Statistics'
 
 const throttleSay = throttle(say, 1000)
 
-function generateData(count: number): ScanDataType[] {
-  const data: ScanDataType[] = []
-
-  for (let i = 0; i < count; i++) {
-    const prefix = String(Math.floor(1000000 + Math.random() * 9000000)) // 7位数字
-    const suffix = String(Math.floor(1000000000 + Math.random() * 9000000000)) // 10位数字
-    const qrcode = `${prefix}W${suffix}`
-
-    data.push({
-      scanObjectName: `Product ${i + 1}`,
-      scanObjectValue: `qì_yā_fá`,
-      qrcode,
-      date: Date.now(),
-      id: i + 1,
-    })
-  }
-
-  return data
-}
-
 const Page: React.FC = () => {
   const [snapshot, setSnapshot] = useState<Snapshot>({
     charData: [],
@@ -50,7 +30,7 @@ const Page: React.FC = () => {
   const [errorQrCode, setErrorQrCode] = useState('')
   const [notificationApi, notificationHolder] = notification.useNotification()
   const timer = useRef<NodeJS.Timeout | null>(null)
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   useEffect(() => {
     loadSnapshot()
@@ -81,7 +61,7 @@ const Page: React.FC = () => {
       showErrorModal && setShowErrorModal(false)
 
       if (!regexp.test(data.qrcode)) {
-        throttleSay(t('Scan Error'))
+        throttleSay(t('Scan Error'), i18n.language)
         setErrorQrCode(data.qrcode)
         setShowErrorModal(true)
         clearTimeout(timer.current)
