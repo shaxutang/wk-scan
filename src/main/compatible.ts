@@ -29,7 +29,7 @@ export interface DataType {
 }
 
 /**
- * 产品信息类型
+ * 扫码对象信息类型
  */
 export interface Product {
   productName: string
@@ -59,7 +59,7 @@ const createDirectoryIfNotExists = (path: string) => {
 /**
  * 处理旧版本扫描数据
  * @param oldData 旧数据
- * @param product 产品信息
+ * @param product 扫码对象信息
  * @param existingScanList 现有扫描列表
  * @returns 处理后的扫描数据
  */
@@ -94,8 +94,8 @@ const deduplicateAndReindexScanList = (scanList: any[]) => {
 }
 
 /**
- * 处理产品扫描数据的兼容性
- * @param product 产品信息
+ * 处理扫码对象扫描数据的兼容性
+ * @param product 扫码对象信息
  */
 const compatibleScanData = (product: Product) => {
   const oldPath = join(os.homedir(), 'wk/qr-scan/product', product.productValue)
@@ -103,7 +103,7 @@ const compatibleScanData = (product: Product) => {
 
   if (!fs.existsSync(oldPath)) return
 
-  output(`开始处理产品 ${product.productName} 的扫描数据`)
+  output(`开始处理扫码对象 ${product.productName} 的扫描数据`)
   try {
     createDirectoryIfNotExists(newBasePath)
 
@@ -160,13 +160,13 @@ const compatibleScanData = (product: Product) => {
         }
       })
   } catch (err) {
-    output(`处理产品 ${product.productValue} 时出错: ${err.message}`)
+    output(`处理扫码对象 ${product.productValue} 时出错: ${err.message}`)
   }
 }
 
 /**
  * 迁移现有目录结构到新格式
- * @param productValue 产品值
+ * @param scanDateDir 扫描日期目录
  */
 const migrateExistingDirectoryStructure = (scanDateDir: string) => {
   const basePath = join(wkrc.get().workDir, 'data', scanDateDir)
@@ -203,13 +203,13 @@ const migrateExistingDirectoryStructure = (scanDateDir: string) => {
 }
 
 /**
- * 迁移所有产品的目录结构
+ * 迁移所有扫码对象的目录结构
  */
 const migrateAllExistingDirectories = () => {
   const dataPath = join(wkrc.get().workDir, 'data')
   if (!fs.existsSync(dataPath)) return
 
-  output('开始迁移所有产品目录结构')
+  output('开始迁移所有扫码对象目录结构')
   try {
     const scanDateDirs = fs.readdirSync(dataPath)
     scanDateDirs.forEach((scanDateDir) => {
@@ -247,7 +247,7 @@ const renameOldDir = () => {
 
 /**
  * 处理扫描对象数据
- * @param products 产品列表
+ * @param products 扫码对象列表
  * @param baseData 基础数据
  */
 const processScanObjects = (products: Product[], baseData: BaseDBType) => {
