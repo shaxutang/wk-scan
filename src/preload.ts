@@ -104,6 +104,14 @@ async function selectFolder(): Promise<ResultType<string>> {
   return ipcRenderer.invoke(HandleType.SELECT_FOLDER)
 }
 
+async function setFullscreenState(fullscreen: boolean): Promise<ResultType> {
+  return ipcRenderer.invoke(HandleType.SET_FULLSCREEN_STATE, fullscreen)
+}
+
+async function getFullscreenState(): Promise<ResultType<boolean>> {
+  return ipcRenderer.invoke(HandleType.GET_FULLSCREEN_STATE)
+}
+
 const api = {
   saveScanObject,
   getScanObjectList,
@@ -121,6 +129,8 @@ const api = {
   getWkrc,
   saveWkrc,
   selectFolder,
+  setFullscreenState,
+  getFullscreenState,
 }
 
 export type Api = typeof api

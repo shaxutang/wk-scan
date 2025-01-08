@@ -1,6 +1,6 @@
 import dayjs from '@/utils/dayjs'
 import { R } from '@/utils/R'
-import { dialog, ipcMain, shell } from 'electron'
+import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { Workbook } from 'exceljs'
 import fs, { existsSync, mkdirSync } from 'fs'
 import { copy } from 'fs-extra'
@@ -81,7 +81,7 @@ const i18n: Record<string, Record<string, string>> = {
   },
 }
 
-export function expose(app: Electron.App) {
+export function expose(app: Electron.App, mainWindow: BrowserWindow) {
   ipcMain.handle(
     HandleType.SAVE_SCAN_OBJECT,
     async (event, scanObject: Omit<ScanObject, 'id'> & { id?: number }) => {
@@ -373,7 +373,7 @@ export function expose(app: Electron.App) {
     const selectPath = join(paths.filePaths[0], 'wk-scan')
     const sourcePath = join(wkrc.get().workDir)
     try {
-      await copy(sourcePath, selectPath, { recursive: true })
+      await copy(sourcePath, selectPath)
       return R.success().setData(selectPath)
     } catch (err) {
       return R.error().setMessage(
@@ -404,6 +404,20 @@ export function expose(app: Electron.App) {
       }
     }
     return R.success().setData(paths.filePaths[0])
+  })
+
+  ipcMain.handle(HandleType.SET_FULLSCREEN_STATE, async (event, state) => {
+    if (mainWindow) {
+      mainWindow.setFullScreen(state)
+    }
+    return R.success()
+  })
+
+  ipcMain.handle(HandleType.GET_FULLSCREEN_STATE, async (event) => {
+    if (mainWindow) {
+      return R.success().setData(mainWindow.isFullScreen())
+    }
+    return R.success().setData(false)
   })
 }
 

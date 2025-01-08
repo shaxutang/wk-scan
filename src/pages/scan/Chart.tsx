@@ -138,7 +138,7 @@ const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
       className={className}
     >
       {snapshot.charData.length ? (
-        <Line {...config} viewStyle={{ height: 800 }} />
+        <Line {...config} containerStyle={{ height: '55vh' }} />
       ) : (
         <Empty description={t('No Data')} className="mt-32" />
       )}
