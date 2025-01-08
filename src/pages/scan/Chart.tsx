@@ -130,9 +130,6 @@ const Chart: React.FC<ChartProps> = ({ snapshot, className }) => {
       size="small"
       title={t('Hourly Capacity Distribution')}
       styles={{
-        header: {
-          padding: '16px 24px',
-        },
         body: {
           padding: '16px',
         },
