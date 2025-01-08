@@ -1,3 +1,4 @@
+import { RCode } from '@/utils/R'
 import { useSyncExternalStore } from 'react'
 
 interface FullscreenModeStoreType {
@@ -9,11 +10,17 @@ class FullscreenModeStore {
   private isFullscreen: boolean = false
   private listeners: Set<() => void> = new Set()
 
-  constructor() {}
+  constructor() {
+    window.electron.getFullscreenState().then((res) => {
+      const { code, data } = res
+      if (code === RCode.SUCCESS) {
+        this.isFullscreen = data
+      }
+    })
+  }
 
   public toggleFullscreenMode() {
     this.isFullscreen = !this.isFullscreen
-    localStorage.setItem('isFullscreen', this.isFullscreen.toString())
     this.updateFullscreen()
     this.notify()
   }
@@ -34,10 +41,10 @@ class FullscreenModeStore {
   }
 
   private updateFullscreen() {
-    if (document.fullscreenElement) {
-      document.exitFullscreen()
+    if (this.isFullscreen) {
+      window.electron.setFullscreenState(true)
     } else {
-      document.documentElement.requestFullscreen()
+      window.electron.setFullscreenState(false)
     }
   }
 }

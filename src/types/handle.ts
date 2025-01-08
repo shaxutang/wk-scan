@@ -17,6 +17,8 @@ export enum HandleType {
   GET_WKRC = 'getWkrc',
   SAVE_WKRC = 'saveWkrc',
   SELECT_FOLDER = 'selectFolder',
+  GET_FULLSCREEN_STATE = 'getFullscreenState',
+  SET_FULLSCREEN_STATE = 'setFullscreenState',
 }
 
 export type SaveScanDataParams = {

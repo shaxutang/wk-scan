@@ -17,11 +17,13 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     height: 800,
     width: 1200,
+    fullscreen: true,
     autoHideMenuBar: !isDev,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   })
+  expose(app, mainWindow)
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
   } else {
@@ -63,5 +65,3 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
-expose(app)

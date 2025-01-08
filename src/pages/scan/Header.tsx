@@ -1,8 +1,15 @@
 import Clock from '@/components/Clock'
 import { useDark } from '@/hooks/useDark'
+import { useFullscreen } from '@/hooks/useFullscreen'
 import { useScanStore } from '@/stores/useScanStore'
 import dayjs from '@/utils/dayjs'
-import { LeftOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
+import {
+  FullscreenExitOutlined,
+  FullscreenOutlined,
+  LeftOutlined,
+  MoonOutlined,
+  SunOutlined,
+} from '@ant-design/icons'
 import { Breadcrumb, Select, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
@@ -11,6 +18,7 @@ const Header: React.FC = () => {
   const scanStore = useScanStore()
   const scanStoreData = scanStore.scanStoreData
   const { isDark, toggleDarkMode } = useDark()
+  const { isFullscreen, toggleFullscreenMode } = useFullscreen()
   const { t, i18n } = useTranslation()
   const { Text } = Typography
 
@@ -80,6 +88,19 @@ const Header: React.FC = () => {
               )}
             </div>
           </div>
+        </div>
+        <div
+          className="relative flex h-6 cursor-pointer items-center gap-x-2 rounded-full bg-gray-200 px-2 dark:bg-gray-600"
+          onClick={toggleFullscreenMode}
+        >
+          {isFullscreen ? (
+            <FullscreenExitOutlined className="text-xs dark:text-white" />
+          ) : (
+            <FullscreenOutlined className="text-xs dark:text-white" />
+          )}
+          <span className="text-[10px] text-gray-500 dark:text-gray-400">
+            {isFullscreen ? t('Exit Fullscreen') : t('Fullscreen')}
+          </span>
         </div>
       </div>
     </div>
