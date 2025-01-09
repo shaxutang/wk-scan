@@ -213,8 +213,8 @@ const migrateAllExistingDirectories = () => {
   try {
     const scanDateDirs = fs.readdirSync(dataPath)
     scanDateDirs.forEach((scanDateDir) => {
-      const productPath = join(dataPath, scanDateDir)
-      if (fs.statSync(productPath).isDirectory()) {
+      const scanDataPath = join(dataPath, scanDateDir)
+      if (fs.statSync(scanDataPath).isDirectory()) {
         migrateExistingDirectoryStructure(scanDateDir)
       }
     })
@@ -311,7 +311,7 @@ export default function () {
 
   try {
     createDirectoryIfNotExists(basePath)
-    const baseFilePath = join(basePath, 'data.json')
+    const baseFilePath = join(basePath, 'base.json')
 
     let baseData: BaseDBType = fs.existsSync(baseFilePath)
       ? JSON.parse(fs.readFileSync(baseFilePath, 'utf-8'))
