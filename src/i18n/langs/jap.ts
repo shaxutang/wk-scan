@@ -10,7 +10,7 @@ export default {
   Next: '次へ',
   'Scan object name cannot be empty': 'スキャンオブジェクト名は空にできません',
   'Add Success': '追加に成功しました',
-  Copyright: 'Copyright © 2024 YangJingYu IE Team. All rights reserved.',
+  Copyright: '著作権 © 2024 YangJingYu IE チーム。全著作権所有.',
   Version: 'バージョン',
   'Hourly Capacity Distribution': '時間別生産能力分布',
   'No Data': 'データなし',
