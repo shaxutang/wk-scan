@@ -244,7 +244,7 @@ export function expose(app: Electron.App, mainWindow: BrowserWindow) {
         records,
         current,
         size,
-        total: records.length,
+        total: query.value().length,
       })
     },
   )
