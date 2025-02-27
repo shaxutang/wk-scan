@@ -23,6 +23,7 @@ class Wkrc {
       : JSON.parse(fs.readFileSync(filePath, 'utf-8'))) ?? {
       workDir: os.homedir(),
     }
+    this.checkWorkDirExists()
   }
 
   get() {
@@ -35,6 +36,12 @@ class Wkrc {
       ...w,
     }
     fs.writeFileSync(filePath, JSON.stringify(this.data))
+  }
+
+  checkWorkDirExists() {
+    if (!fs.existsSync(this.data.workDir)) {
+      this.data.workDir = defaultWkrc.workDir
+    }
   }
 }
 
