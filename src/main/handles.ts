@@ -244,7 +244,7 @@ export function expose(app: Electron.App, mainWindow: BrowserWindow) {
         records,
         current,
         size,
-        total: scanListChain.value().length,
+        total: records.length,
       })
     },
   )

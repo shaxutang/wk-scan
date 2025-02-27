@@ -18,7 +18,7 @@ const createWindow = () => {
     height: 800,
     width: 1200,
     fullscreen: true,
-    autoHideMenuBar: !isDev,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -49,8 +49,6 @@ if (!gotTheLock) {
 
   app.on('ready', () => {
     createWindow()
-    const { Menu } = require('electron')
-    Menu.setApplicationMenu(null)
   })
 }
 
