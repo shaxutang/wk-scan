@@ -54,9 +54,9 @@ const Page: React.FC = () => {
         scanDate: dayjs().toDate().getTime(),
       })
     }
-
-    if (scanStore.scanStoreData.scanRule) {
-      const regexp = new RegExp(scanStore.scanStoreData.scanRule)
+    const scanRule = scanStore.scanStoreData.scanObject.scanRule
+    if (scanRule) {
+      const regexp = new RegExp(scanRule)
 
       showErrorModal && setShowErrorModal(false)
 

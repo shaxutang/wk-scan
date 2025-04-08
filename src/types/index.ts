@@ -4,6 +4,9 @@ export interface ScanObject {
   id: number
   scanObjectName: string
   scanObjectValue: string
+  materialNumber: string
+  scanRuleType: 'default' | 'custom' | 'material-number'
+  scanRule: string
 }
 
 export interface ScanRule {

@@ -3,7 +3,6 @@ import { ScanObject } from '../types'
 
 export interface ScanStoreData {
   scanObject: ScanObject
-  scanRule: string
   scanDate: number
 }
 

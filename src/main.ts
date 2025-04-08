@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import started from 'electron-squirrel-startup'
 import path from 'path'
-import compatible from './main/compatible'
+// import compatible from './main/compatible'
 import { expose } from './main/handles'
 
 if (started) {
@@ -13,7 +13,7 @@ const isDev = process.env.NODE_ENV === 'development'
 let mainWindow: BrowserWindow = null!
 
 const createWindow = () => {
-  compatible()
+  // compatible()
   mainWindow = new BrowserWindow({
     height: 800,
     width: 1200,

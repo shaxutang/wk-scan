@@ -84,10 +84,14 @@ const ScanForm: React.FC<{
 
   const handleSubmit = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      const { id, scanObjectName, scanObjectValue } =
+        scanStore.scanStoreData.scanObject
       onSubmit?.({
         date: dayjs().toDate().getTime(),
         qrcode: (e.currentTarget as HTMLInputElement).value,
-        ...scanStore.scanStoreData.scanObject,
+        id,
+        scanObjectName,
+        scanObjectValue,
       })
       form.resetFields(['qrcode'])
     }

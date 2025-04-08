@@ -8,13 +8,13 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { Link } from 'react-router-dom'
 import { version } from '../../package.json'
-import { ScanObject, ScanRule } from '../types'
+import { ScanObject } from '../types'
 
 const Page: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [scanObjects, setScanObjects] = useState<ScanObject[]>([])
-  const [scanRules, setScanRules] = useState<ScanRule[]>([])
+  // const [scanRules, setScanRules] = useState<ScanRule[]>([])
   // const [newScanObjectName, setNewScanObjectName] = useState<string>('')
   const [api, contextHolder] = message.useMessage()
   const [form] = Form.useForm()
@@ -27,17 +27,17 @@ const Page: React.FC = () => {
   const loadData = async () => {
     const { getScanObjectList, getScanRuleList } = window.electron
     const { data: scanObjects } = await getScanObjectList()
-    const { data: scanRules } = await getScanRuleList()
+    // const { data: scanRules } = await getScanRuleList()
     setScanObjects(scanObjects)
-    setScanRules(scanRules)
+    // setScanRules(scanRules)
 
-    if (scanRules.length) {
-      const rule = scanRules.find((rule) => rule.isDefault)
-      form.setFieldValue(
-        'scanRuleValue',
-        rule?.scanRuleValue ?? scanRules[0].scanRuleValue,
-      )
-    }
+    // if (scanRules.length) {
+    //   const rule = scanRules.find((rule) => rule.isDefault)
+    //   form.setFieldValue(
+    //     'scanRuleValue',
+    //     rule?.scanRuleValue ?? scanRules[0].scanRuleValue,
+    //   )
+    // }
   }
 
   // const addItem = async (
@@ -66,22 +66,12 @@ const Page: React.FC = () => {
   //   api.success(t('Add Success'))
   // }
 
-  const onFinish = ({
-    scanObjectValue,
-    scanRuleValue,
-  }: {
-    scanObjectValue: string
-    scanRuleValue: string
-  }) => {
+  const onFinish = ({ scanObjectValue }: { scanObjectValue: string }) => {
     const scanObject = scanObjects.find(
       (scanObject) => scanObject.scanObjectValue === scanObjectValue,
     )
-    const scanRule = scanRules.find(
-      (scanRule) => scanRule.scanRuleValue === scanRuleValue,
-    )
     scanStore.setScanStoreData({
       scanObject,
-      scanRule: scanRule.scanRuleValue,
       scanDate: dayjs().toDate().getTime(),
     })
     navigate('/scan')
@@ -120,32 +110,6 @@ const Page: React.FC = () => {
                 <Link to="/objects">
                   <Button block icon={<AppstoreOutlined />}>
                     {t('Manage Scan Objects')}
-                  </Button>
-                </Link>
-              </>
-            )}
-          />
-        </Form.Item>
-        <Form.Item
-          label={t('Scan Rule')}
-          name="scanRuleValue"
-          rules={[{ required: true, message: t('Please select scan rule') }]}
-        >
-          <Select
-            allowClear
-            placeholder={t('Please select scan rule')}
-            options={scanRules.map(({ scanRuleName, scanRuleValue }) => ({
-              label: scanRuleName,
-              value: scanRuleValue,
-            }))}
-            size="large"
-            dropdownRender={(menu) => (
-              <>
-                {menu}
-                <Divider style={{ margin: '8px 0' }} />
-                <Link to="/rules">
-                  <Button block icon={<AppstoreOutlined />}>
-                    {t('Manage Scan Rules')}
                   </Button>
                 </Link>
               </>
