@@ -49,7 +49,10 @@ export default {
   'Barcode Format Error': 'Định dạng mã vạch không hợp lệ, vui lòng quét lại',
   'Input Method Check':
     'Vui lòng kiểm tra xem phương thức nhập có phải là tiếng Anh hay định dạng mã vạch hiện tại có đúng không!',
-  'Error Barcode': 'Mã vạch lỗi:',
+  'Error Content': 'Lỗi liên kết:',
+  'The barcode format is incorrect': 'Mã vạch không được định dạng chính xác',
+  'The barcode date format is incorrect':
+    'Định dạng ngày mã vạch không chính xác',
   'Friendly Reminder': 'Lời nhắc thân thiện',
   'Duplicate Barcode': 'Mã vạch quét hiện tại bị trùng lặp!',
   'Save Failed': 'Lưu thất bại!',

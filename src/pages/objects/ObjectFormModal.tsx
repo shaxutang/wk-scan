@@ -28,7 +28,6 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
   }, [initValue])
 
   useEffect(() => {
-    console.log(materialNumber)
     if (ruleType === ruleTypes.materialNumber.value && !!materialNumber) {
       form.setFieldsValue({
         scanRule: `^${materialNumber}W\\d{10}$`,

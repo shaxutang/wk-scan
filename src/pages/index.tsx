@@ -14,8 +14,6 @@ const Page: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [scanObjects, setScanObjects] = useState<ScanObject[]>([])
-  // const [scanRules, setScanRules] = useState<ScanRule[]>([])
-  // const [newScanObjectName, setNewScanObjectName] = useState<string>('')
   const [api, contextHolder] = message.useMessage()
   const [form] = Form.useForm()
   const scanStore = useScanStore()
@@ -27,44 +25,8 @@ const Page: React.FC = () => {
   const loadData = async () => {
     const { getScanObjectList, getScanRuleList } = window.electron
     const { data: scanObjects } = await getScanObjectList()
-    // const { data: scanRules } = await getScanRuleList()
     setScanObjects(scanObjects)
-    // setScanRules(scanRules)
-
-    // if (scanRules.length) {
-    //   const rule = scanRules.find((rule) => rule.isDefault)
-    //   form.setFieldValue(
-    //     'scanRuleValue',
-    //     rule?.scanRuleValue ?? scanRules[0].scanRuleValue,
-    //   )
-    // }
   }
-
-  // const addItem = async (
-  //   e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>,
-  // ) => {
-  //   e.preventDefault()
-  //   if (!newScanObjectName) {
-  //     api.warning(t('Scan object name cannot be empty'))
-  //     return
-  //   }
-  //   const scanObject: Omit<ScanObject, 'id'> = {
-  //     scanObjectName: newScanObjectName,
-  //     scanObjectValue: pinyin(newScanObjectName)
-  //       .reduce((s1, s2) => [...s1, ...s2])
-  //       .join('_'),
-  //   }
-  //   const { saveScanObject, getScanObjectList } = window.electron
-  //   const { code, message } = await saveScanObject(scanObject)
-  //   if (code !== RCode.SUCCESS) {
-  //     api.error(message)
-  //     return
-  //   }
-  //   const { data: newScanObjects } = await getScanObjectList()
-  //   setScanObjects(newScanObjects)
-  //   setNewScanObjectName('')
-  //   api.success(t('Add Success'))
-  // }
 
   const onFinish = ({ scanObjectValue }: { scanObjectValue: string }) => {
     const scanObject = scanObjects.find(

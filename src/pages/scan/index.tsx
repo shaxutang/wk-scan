@@ -9,6 +9,7 @@ import { Button, Modal, notification, Result, Space } from 'antd'
 import { throttle } from 'lodash'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ruleTypes } from '../objects/rules'
 import Chart from './Chart'
 import Header from './Header'
 import HistoryDawerButton from './HistoryDawerButton'
@@ -27,7 +28,7 @@ const Page: React.FC = () => {
   })
   const scanStore = useScanStore()
   const [showErrorModal, setShowErrorModal] = useState(false)
-  const [errorQrCode, setErrorQrCode] = useState('')
+  const [errorContent, seterrorContent] = useState('')
   const [notificationApi, notificationHolder] = notification.useNotification()
   const timer = useRef<NodeJS.Timeout | null>(null)
   const { t, i18n } = useTranslation()
@@ -47,6 +48,25 @@ const Page: React.FC = () => {
     }
   }
 
+  const scanRuleTypeHandle = {
+    [ruleTypes.materialNumber.value]: (qrcode: string) => {
+      const match = qrcode.match(/W(\d{6})/)
+      if (match) {
+        const YYMMdd = match[1]
+        const day = dayjs(YYMMdd, 'YYMMDD')
+        if (!day.isValid() || !dayjs().isSame(day, 'D')) {
+          setShowErrorModal(true)
+          seterrorContent(
+            `${qrcode} ${t('The barcode date format is incorrect')}`,
+          )
+          throttleSay(t('The barcode date format is incorrect'), i18n.language)
+          return false
+        }
+      }
+      return true
+    },
+  }
+
   const onSubmit = async (data: ScanDataType) => {
     if (dayjs().isAfter(dayjs(scanStore.scanStoreData.scanDate), 'D')) {
       scanStore.setScanStoreData({
@@ -54,6 +74,7 @@ const Page: React.FC = () => {
         scanDate: dayjs().toDate().getTime(),
       })
     }
+
     const scanRule = scanStore.scanStoreData.scanObject.scanRule
     if (scanRule) {
       const regexp = new RegExp(scanRule)
@@ -61,8 +82,10 @@ const Page: React.FC = () => {
       showErrorModal && setShowErrorModal(false)
 
       if (!regexp.test(data.qrcode)) {
-        throttleSay(t('Scan Error'), i18n.language)
-        setErrorQrCode(data.qrcode)
+        throttleSay(t('The barcode format is incorrect'), i18n.language)
+        seterrorContent(
+          `${data.qrcode} ${t('The barcode format is incorrect')}`,
+        )
         setShowErrorModal(true)
         clearTimeout(timer.current)
         timer.current = setTimeout(() => {
@@ -71,6 +94,13 @@ const Page: React.FC = () => {
         return
       }
     }
+
+    const scanRuleType = scanStore.scanStoreData.scanObject.scanRuleType
+
+    const alloeContinue =
+      scanRuleTypeHandle[scanRuleType]?.(data.qrcode) ?? true
+
+    if (!alloeContinue) return
 
     const { code, message } = await window.electron.saveScanData({
       scanObject: scanStore.scanStoreData.scanObject,
@@ -158,8 +188,8 @@ const Page: React.FC = () => {
           subTitle={<p className="text-2xl">{t('Input Method Check')}</p>}
         >
           <div className="text-center text-xl">
-            {t('Error Barcode')}
-            <span className="text-red-500 underline">{errorQrCode}</span>
+            {t('Error Content')}
+            <span className="text-red-500">{errorContent}</span>
           </div>
         </Result>
       </Modal>

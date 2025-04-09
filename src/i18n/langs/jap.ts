@@ -49,7 +49,10 @@ export default {
     'バーコードの形式が正しくありません。再度スキャンしてください',
   'Input Method Check':
     '入力方法が英語になっているか、現在のバーコード形式が正しいかご確認ください！',
-  'Error Barcode': 'エラーバーコード：',
+  'Error Content': 'エラーコンネット：',
+  'The barcode format is incorrect': 'バーコードの形式が間違っている',
+  'The barcode date format is incorrect':
+    'このバーコードの日付形式が正しくない',
   'Friendly Reminder': 'お知らせ',
   'Duplicate Barcode': '現在スキャンされたバーコードは重複しています！',
   'Save Failed': '保存に失敗しました！',

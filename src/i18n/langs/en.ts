@@ -48,7 +48,10 @@ export default {
   'Barcode Format Error': 'Barcode format error, please scan again',
   'Input Method Check':
     'Please check if the input method is English or if the current barcode format is correct!',
-  'Error Barcode': 'Error barcode:',
+  'Error Content': 'Error Content:',
+  'The barcode format is incorrect': 'The barcode format is incorrect',
+  'The barcode date format is incorrect':
+    'The barcode date format is incorrect',
   'Friendly Reminder': 'Friendly Reminder',
   'Duplicate Barcode': 'The current scanned barcode is duplicate!',
   'Save Failed': 'Save failed!',

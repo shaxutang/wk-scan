@@ -1,15 +1,14 @@
-import { ScanDataType, ScanObject, ScanRule } from '@/types'
+import { ScanDataType, ScanObject } from '@/types'
 import fs from 'fs'
 import lodash from 'lodash'
 import { Low } from 'lowdb'
 import { JSONFile } from 'lowdb/node'
 import { join } from 'path'
-import { scanObjects, scanRules } from './default'
+import { scanObjects } from './default'
 import wkrc from './wkrc'
 
 export type BaseDBType = {
   scanObjects: ScanObject[]
-  scanRules: ScanRule[]
 }
 
 export type ScanDBType = {
@@ -78,7 +77,6 @@ export class Database {
 
     let data: BaseDBType = {
       scanObjects,
-      scanRules,
     }
 
     if (fs.existsSync(baseDBPath)) {

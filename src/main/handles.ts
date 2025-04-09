@@ -5,7 +5,7 @@ import { Workbook } from 'exceljs'
 import fs, { existsSync, mkdirSync } from 'fs'
 import { copy } from 'fs-extra'
 import path, { join } from 'path'
-import { ScanObject, ScanRule, Snapshot } from '../types'
+import { ScanObject, Snapshot } from '../types'
 import {
   ExportScanDataParams,
   GetScanPageListPrams,
@@ -26,8 +26,6 @@ const i18n: Record<string, Record<string, string>> = {
     date: '扫码时间',
     duplicateScanObject: '扫码对象名称重复',
     scanObjectNotExist: '扫码对象不存在',
-    duplicateScanRule: '扫码规则名称重复',
-    scanRuleNotExist: '扫码规则不存在',
     duplicateQrcode: '当前扫描的条码重复!',
     exportFailed: '导出失败',
     operationCanceled: '操作取消',
@@ -41,8 +39,6 @@ const i18n: Record<string, Record<string, string>> = {
     date: 'Scan Time',
     duplicateScanObject: 'Duplicate scan object name',
     scanObjectNotExist: 'Scan object does not exist',
-    duplicateScanRule: 'Duplicate scan rule name',
-    scanRuleNotExist: 'Scan rule does not exist',
     duplicateQrcode: 'Current scanned QR code is duplicate!',
     exportFailed: 'Export failed',
     operationCanceled: 'Operation canceled',
@@ -56,8 +52,6 @@ const i18n: Record<string, Record<string, string>> = {
     date: 'Thời gian quét',
     duplicateScanObject: 'Tên đối tượng quét trùng lặp',
     scanObjectNotExist: 'Đối tượng quét không tồn tại',
-    duplicateScanRule: 'Tên quy tắc quét trùng lặp',
-    scanRuleNotExist: 'Quy tắc quét không tồn tại',
     duplicateQrcode: 'Mã QR quét hiện tại bị trùng lặp!',
     exportFailed: 'Xuất thất bại',
     operationCanceled: 'Thao tác đã hủy',
@@ -71,8 +65,6 @@ const i18n: Record<string, Record<string, string>> = {
     date: 'スキャン時間',
     duplicateScanObject: 'スキャンオブジェクト名が重複しています',
     scanObjectNotExist: 'スキャンオブジェクトが存在しません',
-    duplicateScanRule: 'スキャンルール名が重複しています',
-    scanRuleNotExist: 'スキャンルールが存在しません',
     duplicateQrcode: '現在スキャンされたQRコードが重複しています！',
     exportFailed: 'エクスポートに失敗しました',
     operationCanceled: '操作がキャンセルされました',
@@ -139,63 +131,6 @@ export function expose(app: Electron.App, mainWindow: BrowserWindow) {
     }
     scanObjectsChain.remove((sb) => sb.id === id).commit()
     database.getBaseDB().write()
-    return R.success()
-  })
-
-  ipcMain.handle(
-    HandleType.SAVE_SCAN_RULE,
-    async (event, scanRule: Omit<ScanRule, 'id'> & { id?: number }) => {
-      const id = scanRule.id
-      const scanRulesChain = database.getBaseDB().chain.get('scanRules')
-      const scanRuleExists = scanRulesChain
-        .find((sr) => sr.scanRuleValue === scanRule.scanRuleValue)
-        .value()
-
-      if (scanRuleExists && scanRuleExists.id !== id) {
-        return R.duplicate().setMessage(
-          i18n[wkrc.get().language].duplicateScanRule,
-        )
-      }
-      if (id) {
-        scanRulesChain
-          .map((sr) => {
-            if (scanRule.isDefault) {
-              sr.isDefault = false
-            }
-            return sr
-          })
-          .find((sr) => sr.id === id)
-          .assign(scanRule)
-          .commit()
-      } else {
-        scanRulesChain
-          .push({ ...scanRule, id: scanRulesChain.value().length + 1 })
-          .map((sr) => {
-            if (scanRule.isDefault) {
-              sr.isDefault = false
-            }
-            return sr
-          })
-          .commit()
-      }
-      await database.getBaseDB().write()
-      return R.success()
-    },
-  )
-
-  ipcMain.handle(HandleType.GET_SCAN_RULE_LIST, async (event) => {
-    const scanRules = database.getBaseDB().chain.get('scanRules').value()
-    return R.success<ScanRule[]>().setData(scanRules)
-  })
-
-  ipcMain.handle(HandleType.DELETE_SCAN_RULE, async (event, id: number) => {
-    const scanRulesChain = database.getBaseDB().chain.get('scanRules')
-    const scanRuleExists = scanRulesChain.find((sr) => sr.id === id)
-    if (!scanRuleExists) {
-      return R.error().setMessage(i18n[wkrc.get().language].scanRuleNotExist)
-    }
-    scanRulesChain.remove((sr) => sr.id === id).commit()
-    await database.getBaseDB().write()
     return R.success()
   })
 

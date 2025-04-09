@@ -9,13 +9,6 @@ export interface ScanObject {
   scanRule: string
 }
 
-export interface ScanRule {
-  id: number
-  scanRuleName: string
-  scanRuleValue: string
-  isDefault: boolean
-}
-
 export interface ScanDataType {
   id: number
   scanObjectName: string

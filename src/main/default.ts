@@ -1,4 +1,4 @@
-import { ScanObject, ScanRule } from '@/types'
+import { ScanObject } from '@/types'
 import os from 'os'
 import { join } from 'path'
 import { WkrcType } from './wkrc'
@@ -16,40 +16,5 @@ export const scanObjects: ScanObject[] = [
     scanRuleType: 'default',
     scanRule: '.*',
     materialNumber: '0000000',
-  },
-  // {
-  //   id: 2,
-  //   scanObjectName: 'SC下壳-气密测试',
-  //   scanObjectValue: 'SC_xià_ké_-_qì_mì_cè_shì',
-  // },
-  // {
-  //   id: 3,
-  //   scanObjectName: 'SC下壳-漏水测试',
-  //   scanObjectValue: 'SC_xià_ké_-_lòu_shuǐ_cè_shì',
-  // },
-  // {
-  //   id: 4,
-  //   scanObjectName: 'PSC清洁液箱成品气密测试',
-  //   scanObjectValue: 'PSC_qīng_jié_yè_xiāng_chéng_pǐn_qì_mì_cè_shì',
-  // },
-  // {
-  //   id: 5,
-  //   scanObjectName: 'O5清洁液箱成品气密测试',
-  //   scanObjectValue: 'O5_qīng_jié_yè_xiāng_chéng_pǐn_qì_mì_cè_shì',
-  // },
-]
-
-export const scanRules: ScanRule[] = [
-  {
-    id: 1,
-    scanRuleName: '通用条码（不做任何校验）',
-    scanRuleValue: '.*',
-    isDefault: false,
-  },
-  {
-    id: 2,
-    scanRuleName: '产线18位条码',
-    scanRuleValue: '^\\d{7}W\\d{10}$',
-    isDefault: true,
   },
 ]
