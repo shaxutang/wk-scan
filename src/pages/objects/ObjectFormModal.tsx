@@ -85,6 +85,7 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
         form={form}
         layout="vertical"
         initialValues={{
+          materialNumber: '',
           scanRuleType: ruleTypes.default.value,
           scanRule: '.*',
         }}
