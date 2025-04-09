@@ -72,6 +72,10 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
       form.setFieldsValue({
         scanRule: `^${form.getFieldValue('materialNumber')}W\\d{10}$`,
       })
+    } else {
+      form.setFieldsValue({
+        scanRule: '',
+      })
     }
   }
 
