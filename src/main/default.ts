@@ -15,6 +15,7 @@ export const scanObjects: ScanObject[] = [
     scanObjectValue: 'common',
     scanRuleType: 'default',
     scanRule: '.*',
+    materialNumber: '0000000',
   },
   // {
   //   id: 2,

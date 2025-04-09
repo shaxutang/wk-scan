@@ -111,7 +111,7 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
                 key={ruleTypeValue.value}
                 value={ruleTypeValue.value}
               >
-                {ruleTypeValue.label}
+                {t(ruleTypeValue.value)}
               </Radio.Button>
             ))}
           </Radio.Group>

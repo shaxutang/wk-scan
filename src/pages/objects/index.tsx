@@ -155,22 +155,23 @@ const ScanObjects: React.FC = () => {
     {
       title: t('Actions'),
       key: 'action',
-      render: (_, scanObject) => (
-        <Space>
-          <EditModalButton initValue={scanObject} onOk={onUpdate} />
-          <Popconfirm
-            title={t('Confirm Delete?')}
-            description={t('Scan Object Delete Description')}
-            onConfirm={() => onDelete(scanObject)}
-            okText={t('Confirm')}
-            cancelText={t('Cancel')}
-          >
-            <Button type="primary" danger size="small">
-              {t('Delete')}
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+      render: (_, scanObject) =>
+        scanObject.scanObjectValue === 'common' ? null : (
+          <Space>
+            <EditModalButton initValue={scanObject} onOk={onUpdate} />
+            <Popconfirm
+              title={t('Confirm Delete?')}
+              description={t('Scan Object Delete Description')}
+              onConfirm={() => onDelete(scanObject)}
+              okText={t('Confirm')}
+              cancelText={t('Cancel')}
+            >
+              <Button type="primary" danger size="small">
+                {t('Delete')}
+              </Button>
+            </Popconfirm>
+          </Space>
+        ),
     },
   ]
 
