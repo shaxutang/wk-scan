@@ -60,6 +60,10 @@ const Page: React.FC = () => {
             `${qrcode} ${t('The barcode date format is incorrect')}`,
           )
           throttleSay(t('The barcode date format is incorrect'), i18n.language)
+          clearTimeout(timer.current)
+          timer.current = setTimeout(() => {
+            setShowErrorModal(false)
+          }, 10000)
           return false
         }
       }
