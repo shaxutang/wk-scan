@@ -3,10 +3,21 @@ import os from 'os'
 import { join } from 'path'
 import { wkrc as defaultWkrc } from './default'
 
-export type WkrcType = {
-  workDir?: string
-  language?: string
-}
+export type WkrcType =
+  | {
+      workDir?: string
+      language?: string
+      internet?: false
+      host?: string
+      port?: number
+    }
+  | {
+      workDir?: string
+      language?: string
+      internet?: true
+      host: string
+      port: number
+    }
 
 const fileName = '.wkrc.json'
 const filePath = join(os.homedir(), fileName)

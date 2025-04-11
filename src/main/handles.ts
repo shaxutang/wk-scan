@@ -151,6 +151,17 @@ export function expose(app: Electron.App, mainWindow: BrowserWindow) {
           i18n[wkrc.get().language].duplicateQrcode,
         )
       }
+      if (wkrc.get().internet) {
+        fetch(
+          `http://${wkrc.get().host}:${wkrc.get().port}/scan/qrcode/create`,
+          {
+            method: 'POST',
+            body: JSON.stringify(data),
+          },
+        ).then((res) => {
+          console.log(res.json())
+        })
+      }
       chain.push(data).commit()
       await scanDB.write()
       return R.success()
