@@ -19,7 +19,7 @@ export default defineConfig({
           pinyin: ['pinyin'],
           react: ['react'],
           reactDom: ['react-dom'],
-          reactRouterDom: ['react-router-dom'],
+          reactRouterDom: ['react-router'],
         },
       },
     },
