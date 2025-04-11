@@ -3,14 +3,13 @@ import { useDark } from '@/hooks/useDark'
 import { useFullscreen } from '@/hooks/useFullscreen'
 import { useScanStore } from '@/stores/useScanStore'
 import { cn } from '@/utils/css'
-import dayjs from '@/utils/dayjs'
 import {
   FullscreenExitOutlined,
   FullscreenOutlined,
   MoonOutlined,
   SunOutlined,
 } from '@ant-design/icons'
-import { Breadcrumb, Select, Typography } from 'antd'
+import { Breadcrumb, Select } from 'antd'
 import { ItemType } from 'antd/es/breadcrumb/Breadcrumb'
 import { useTranslation } from 'react-i18next'
 
@@ -20,11 +19,9 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
   const scanStore = useScanStore()
-  const scanStoreData = scanStore.scanStoreData
   const { isDark, toggleDarkMode } = useDark()
   const { isFullscreen, toggleFullscreenMode } = useFullscreen()
   const { t, i18n } = useTranslation()
-  const { Text } = Typography
 
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value)
@@ -44,10 +41,7 @@ const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
       <div className="flex items-center">
         {!!breadcrumbs && (
           <>
-            <Breadcrumb items={breadcrumbs} />{' '}
-            <Text type="secondary" className="ml-2 text-xs">
-              {dayjs(scanStoreData.scanDate).format('YYYY-MM-DD')}
-            </Text>
+            <Breadcrumb items={breadcrumbs} />
           </>
         )}
       </div>

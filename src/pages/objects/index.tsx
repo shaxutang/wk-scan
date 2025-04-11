@@ -1,7 +1,8 @@
 import FloatButtons from '@/components/FloatButtons'
+import Header from '@/components/Header'
 import { ScanObject } from '@/types'
 import { RCode } from '@/utils/R'
-import { PlusOutlined } from '@ant-design/icons'
+import { HomeOutlined, PlusOutlined } from '@ant-design/icons'
 import {
   Button,
   Card,
@@ -176,20 +177,34 @@ const ScanObjects: React.FC = () => {
   ]
 
   return (
-    <section className="flex h-screen flex-col items-center justify-center gap-y-4 overflow-x-hidden">
-      <Card className="w-[50vw]">
-        <div className="mb-4">
-          <NewModalButton onOk={onSave} />
-        </div>
-        <Table
-          columns={columns}
-          dataSource={scanObjects}
-          rowKey="scanObjectValue"
-        />
-      </Card>
-      <Link to="/">
-        <Button type="primary">{t('Back to Home')}</Button>
-      </Link>
+    <section className="flex h-screen flex-col">
+      <Header
+        breadcrumbs={[
+          {
+            title: (
+              <Link to="/">
+                <HomeOutlined className="mr-1" />
+                <span>{t('Back to Home')}</span>
+              </Link>
+            ),
+          },
+        ]}
+      />
+      <div className="flex flex-col items-center justify-center gap-y-4 overflow-x-hidden pt-20">
+        <Card className="w-[50vw]">
+          <div className="mb-4">
+            <NewModalButton onOk={onSave} />
+          </div>
+          <Table
+            columns={columns}
+            dataSource={scanObjects}
+            rowKey="scanObjectValue"
+          />
+        </Card>
+        <Link to="/">
+          <Button type="primary">{t('Back to Home')}</Button>
+        </Link>
+      </div>
       {contextHolder}
       <FloatButtons />
     </section>
