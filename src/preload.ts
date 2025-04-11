@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { WkrcType } from './main/wkrc'
-import { ScanObject, ScanRule, Snapshot } from './types'
+import { ScanObject, Snapshot } from './types'
 import {
   ExportScanDataParams,
   GetScanPageListPrams,
@@ -9,6 +9,7 @@ import {
   HandleType,
   SaveScanDataParams,
   ScanHistory,
+  TitlebarOverlayTheme,
 } from './types/handle'
 import { ResultType } from './utils/R'
 // 保存扫描对象
@@ -26,23 +27,6 @@ async function getScanObjectList(): Promise<ResultType<ScanObject[]>> {
 // 删除扫描对象
 async function deleteScanObject(id: number): Promise<ResultType> {
   return ipcRenderer.invoke(HandleType.DELETE_SCAN_OBJECT, id)
-}
-
-// 保存扫描规则
-async function saveScanRule(
-  scanRule: Omit<ScanRule, 'id'> & { id?: number },
-): Promise<ResultType> {
-  return ipcRenderer.invoke(HandleType.SAVE_SCAN_RULE, scanRule)
-}
-
-// 获取扫描规则列表
-async function getScanRuleList(): Promise<ResultType<ScanRule[]>> {
-  return ipcRenderer.invoke(HandleType.GET_SCAN_RULE_LIST)
-}
-
-// 删除扫描规则
-async function deleteScanRule(id: number): Promise<ResultType> {
-  return ipcRenderer.invoke(HandleType.DELETE_SCAN_RULE, id)
 }
 
 // 保存扫描数据
@@ -112,13 +96,16 @@ async function getFullscreenState(): Promise<ResultType<boolean>> {
   return ipcRenderer.invoke(HandleType.GET_FULLSCREEN_STATE)
 }
 
+async function toggleTitleBarTheme(
+  theme: TitlebarOverlayTheme,
+): Promise<ResultType> {
+  return ipcRenderer.invoke(HandleType.TOGGLE_TITLE_BAR_OVERLAY, theme)
+}
+
 const api = {
   saveScanObject,
   getScanObjectList,
   deleteScanObject,
-  saveScanRule,
-  getScanRuleList,
-  deleteScanRule,
   saveScanData,
   getScanPageList,
   getSnapshot,
@@ -131,6 +118,7 @@ const api = {
   selectFolder,
   setFullscreenState,
   getFullscreenState,
+  toggleTitleBarTheme,
 }
 
 export type Api = typeof api

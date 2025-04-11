@@ -90,15 +90,6 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
         }}
       >
         <Form.Item
-          name="materialNumber"
-          label={t('Material Number')}
-          rules={[
-            { required: true, message: t('Please enter material number') },
-          ]}
-        >
-          <Input placeholder={t('Please enter material number')} />
-        </Form.Item>
-        <Form.Item
           name="scanObjectName"
           label={t('Scan Object Name')}
           rules={[
@@ -107,7 +98,15 @@ const ScanObjectFormModal: React.FC<ScanObjectFormModalProps> = ({
         >
           <Input placeholder={t('Please enter scan object name')} />
         </Form.Item>
-
+        <Form.Item
+          name="materialNumber"
+          label={t('Material Number')}
+          rules={[
+            { required: true, message: t('Please enter material number') },
+          ]}
+        >
+          <Input placeholder={t('Please enter material number')} />
+        </Form.Item>
         <Form.Item name="scanRuleType" label={t('Scan Rule Type')}>
           <Radio.Group buttonStyle="solid" onChange={handleRuleTypeChange}>
             {Object.values(ruleTypes).map((ruleTypeValue) => (

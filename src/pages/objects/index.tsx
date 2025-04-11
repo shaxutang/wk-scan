@@ -13,7 +13,7 @@ import {
 } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import ScanObjectFormModal from './ObjectFormModal'
 
 const NewModalButton: React.FC<{

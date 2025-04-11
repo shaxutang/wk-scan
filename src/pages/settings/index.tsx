@@ -4,7 +4,7 @@ import { FolderOpenOutlined } from '@ant-design/icons'
 import { Button, Card, Form, Input, message, Radio, Space } from 'antd'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 const Settings = () => {
   const { t, i18n } = useTranslation()

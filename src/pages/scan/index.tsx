@@ -1,24 +1,25 @@
 import FloatButtons from '@/components/FloatButtons'
+import Header from '@/components/Header'
 import { useScanStore } from '@/stores/useScanStore'
 import { ScanDataType, Snapshot } from '@/types'
 import dayjs from '@/utils/dayjs'
 import { RCode } from '@/utils/R'
 import { say } from '@/utils/video'
-import { RollbackOutlined } from '@ant-design/icons/lib'
+import { HomeOutlined, RollbackOutlined } from '@ant-design/icons/lib'
 import { Button, Modal, notification, Result, Space } from 'antd'
 import { throttle } from 'lodash'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { ruleTypes } from '../objects/rules'
 import Chart from './Chart'
-import Header from './Header'
 import HistoryDawerButton from './HistoryDawerButton'
 import ScanForm from './ScanForm'
 import Statistics from './Statistics'
 
 const throttleSay = throttle(say, 1000)
 
-const Page: React.FC = () => {
+const useSnapshot = (scanDate: number, scanObject: any) => {
   const [snapshot, setSnapshot] = useState<Snapshot>({
     charData: [],
     lastHourCapacity: 0,
@@ -26,149 +27,158 @@ const Page: React.FC = () => {
     speed: 0,
     growth: 0,
   })
+
+  const loadSnapshot = useCallback(async () => {
+    const result = await window.electron.getSnapshot({
+      scanDate: dayjs(scanDate).format('YYYY-MM-DD'),
+      scanObject,
+    })
+
+    if (result.code === RCode.SUCCESS) {
+      setSnapshot(result.data)
+    }
+  }, [scanDate, scanObject])
+
+  return { snapshot, loadSnapshot }
+}
+
+const Page: React.FC = () => {
   const scanStore = useScanStore()
+  const { scanDate, scanObject } = scanStore.scanStoreData
+  const { snapshot, loadSnapshot } = useSnapshot(scanDate, scanObject)
+
   const [showErrorModal, setShowErrorModal] = useState(false)
-  const [errorContent, seterrorContent] = useState('')
+  const [errorContent, setErrorContent] = useState('')
   const [notificationApi, notificationHolder] = notification.useNotification()
   const timer = useRef<NodeJS.Timeout | null>(null)
   const { t, i18n } = useTranslation()
 
   useEffect(() => {
     loadSnapshot()
-  }, [scanStore.scanStoreData])
+  }, [scanDate, scanObject, loadSnapshot])
 
-  const loadSnapshot = async () => {
-    const result = await window.electron.getSnapshot({
-      scanDate: dayjs(scanStore.scanStoreData.scanDate).format('YYYY-MM-DD'),
-      scanObject: scanStore.scanStoreData.scanObject,
-    })
-
-    if (result.code === RCode.SUCCESS) {
-      setSnapshot(result.data)
-    }
-  }
-
-  const scanRuleTypeHandle = {
-    [ruleTypes.materialNumber.value]: (qrcode: string) => {
+  const handleScanRuleType = useCallback(
+    (qrcode: string): boolean => {
       const match = qrcode.match(/W(\d{6})/)
       if (match) {
         const YYMMdd = match[1]
         const day = dayjs(YYMMdd, 'YYMMDD')
         if (!day.isValid() || !dayjs().isSame(day, 'D')) {
+          const message = `${qrcode} ${t('The barcode date format is incorrect')}`
+          setErrorContent(message)
           setShowErrorModal(true)
-          seterrorContent(
-            `${qrcode} ${t('The barcode date format is incorrect')}`,
-          )
           throttleSay(t('The barcode date format is incorrect'), i18n.language)
-          clearTimeout(timer.current)
-          timer.current = setTimeout(() => {
-            setShowErrorModal(false)
-          }, 10000)
+          clearTimeout(timer.current!)
+          timer.current = setTimeout(() => setShowErrorModal(false), 10000)
           return false
         }
       }
       return true
     },
-  }
+    [t, i18n.language],
+  )
 
-  const onSubmit = async (data: ScanDataType) => {
-    if (dayjs().isAfter(dayjs(scanStore.scanStoreData.scanDate), 'D')) {
-      scanStore.setScanStoreData({
-        ...scanStore.scanStoreData,
-        scanDate: dayjs().toDate().getTime(),
-      })
-    }
+  const onSubmit = useCallback(
+    async (data: ScanDataType) => {
+      if (dayjs().isAfter(dayjs(scanDate), 'D')) {
+        scanStore.setScanStoreData({
+          ...scanStore.scanStoreData,
+          scanDate: dayjs().toDate().getTime(),
+        })
+      }
 
-    const scanRule = scanStore.scanStoreData.scanObject.scanRule
-    if (scanRule) {
-      const regexp = new RegExp(scanRule)
+      const { scanRule, scanRuleType } = scanObject
+      const regexp = scanRule ? new RegExp(scanRule) : null
 
-      showErrorModal && setShowErrorModal(false)
-
-      if (!regexp.test(data.qrcode)) {
-        throttleSay(t('The barcode format is incorrect'), i18n.language)
-        seterrorContent(
-          `${data.qrcode} ${t('The barcode format is incorrect')}`,
-        )
+      if (regexp && !regexp.test(data.qrcode)) {
+        const message = `${data.qrcode} ${t('The barcode format is incorrect')}`
+        setErrorContent(message)
         setShowErrorModal(true)
-        clearTimeout(timer.current)
-        timer.current = setTimeout(() => {
-          setShowErrorModal(false)
-        }, 10000)
+        throttleSay(t('The barcode format is incorrect'), i18n.language)
+        clearTimeout(timer.current!)
+        timer.current = setTimeout(() => setShowErrorModal(false), 10000)
         return
       }
-    }
 
-    const scanRuleType = scanStore.scanStoreData.scanObject.scanRuleType
+      const isValid =
+        ruleTypes.materialNumber.value === scanRuleType
+          ? handleScanRuleType(data.qrcode)
+          : true
 
-    const alloeContinue =
-      scanRuleTypeHandle[scanRuleType]?.(data.qrcode) ?? true
+      if (!isValid) return
 
-    if (!alloeContinue) return
-
-    const { code, message } = await window.electron.saveScanData({
-      scanObject: scanStore.scanStoreData.scanObject,
-      scanDate: dayjs().format('YYYY-MM-DD'),
-      data,
-    })
-
-    if (code === RCode.SUCCESS) {
-      await loadSnapshot()
-    } else if (code === RCode.DUPLICATE) {
-      notificationApi.info({
-        key: 'duplicate',
-        message: t('Friendly Reminder'),
-        description: t('Duplicate Barcode'),
-        placement: 'top',
+      const { code, message } = await window.electron.saveScanData({
+        scanObject,
+        scanDate: dayjs().format('YYYY-MM-DD'),
+        data,
       })
-    } else {
-      notificationApi.error({
-        key: 'error',
-        message: message,
-        description: t('Save Failed'),
-        placement: 'top',
-      })
-    }
-  }
+
+      if (code === RCode.SUCCESS) {
+        await loadSnapshot()
+      } else {
+        notificationApi[code === RCode.DUPLICATE ? 'info' : 'error']({
+          key: code === RCode.DUPLICATE ? 'duplicate' : 'error',
+          message: code === RCode.DUPLICATE ? t('Friendly Reminder') : message,
+          description:
+            code === RCode.DUPLICATE
+              ? t('Duplicate Barcode')
+              : t('Save Failed'),
+          placement: 'top',
+        })
+      }
+    },
+    [scanDate, scanObject, handleScanRuleType, t, i18n.language, loadSnapshot],
+  )
 
   return (
     <section className="flex h-screen flex-col pb-8">
-      <div>
-        <Header />
-        <div className="mt-8 flex items-center px-3">
-          <div className="flex-auto">
-            <ScanForm onSubmit={onSubmit} />
-          </div>
-          <Space>
-            {!dayjs().isSame(dayjs(scanStore.scanStoreData.scanDate), 'D') && (
-              <Button
-                type="primary"
-                icon={<RollbackOutlined />}
-                onClick={() =>
-                  scanStore.setScanStoreData({
-                    ...scanStore.scanStoreData,
-                    scanDate: dayjs().toDate().getTime(),
-                  })
-                }
-              >
-                {t('Back to Today')}
-              </Button>
-            )}
-            <HistoryDawerButton />
-          </Space>
+      <Header
+        breadcrumbs={[
+          {
+            title: (
+              <Link to="/">
+                <HomeOutlined className="mr-1" />
+                <span>{t('Select scan object')}</span>
+              </Link>
+            ),
+          },
+          {
+            title: scanObject.scanObjectName,
+          },
+        ]}
+      />
+
+      <div className="mt-8 flex items-center px-3">
+        <div className="flex-auto">
+          <ScanForm onSubmit={onSubmit} />
         </div>
-        <div className="mt-8 px-3">
-          <Statistics
-            lastHourCapacity={snapshot?.lastHourCapacity ?? 0}
-            totalCapacity={snapshot?.totalCapacity ?? 0}
-            speed={snapshot?.speed ?? 0}
-            growth={snapshot?.growth ?? 0}
-          />
-        </div>
+        <Space>
+          {!dayjs().isSame(dayjs(scanDate), 'D') && (
+            <Button
+              type="primary"
+              icon={<RollbackOutlined />}
+              onClick={() =>
+                scanStore.setScanStoreData({
+                  ...scanStore.scanStoreData,
+                  scanDate: dayjs().toDate().getTime(),
+                })
+              }
+            >
+              {t('Back to Today')}
+            </Button>
+          )}
+          <HistoryDawerButton />
+        </Space>
       </div>
+
+      <div className="mt-8 px-3">
+        <Statistics {...snapshot} />
+      </div>
+
       <div className="mt-8 flex-auto px-3">
         <Chart snapshot={snapshot} className="h-full" />
       </div>
+
       <Modal
         title={t('Error Tip')}
         open={showErrorModal}
@@ -192,11 +202,12 @@ const Page: React.FC = () => {
           subTitle={<p className="text-2xl">{t('Input Method Check')}</p>}
         >
           <div className="text-center text-xl">
-            {t('Error Content')}
+            {t('Error Content')}{' '}
             <span className="text-red-500">{errorContent}</span>
           </div>
         </Result>
       </Modal>
+
       <FloatButtons />
       {notificationHolder}
     </section>

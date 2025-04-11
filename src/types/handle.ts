@@ -16,6 +16,7 @@ export enum HandleType {
   SELECT_FOLDER = 'selectFolder',
   GET_FULLSCREEN_STATE = 'getFullscreenState',
   SET_FULLSCREEN_STATE = 'setFullscreenState',
+  TOGGLE_TITLE_BAR_OVERLAY = 'toggleTitleBarOverlay',
 }
 
 export type SaveScanDataParams = {
@@ -53,3 +54,5 @@ export type ExportScanDataParams = {
   scanObject: ScanObject
   scanDates: string[]
 }
+
+export type TitlebarOverlayTheme = 'light' | 'dark'

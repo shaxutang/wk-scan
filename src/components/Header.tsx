@@ -2,19 +2,23 @@ import Clock from '@/components/Clock'
 import { useDark } from '@/hooks/useDark'
 import { useFullscreen } from '@/hooks/useFullscreen'
 import { useScanStore } from '@/stores/useScanStore'
+import { cn } from '@/utils/css'
 import dayjs from '@/utils/dayjs'
 import {
   FullscreenExitOutlined,
   FullscreenOutlined,
-  LeftOutlined,
   MoonOutlined,
   SunOutlined,
 } from '@ant-design/icons'
 import { Breadcrumb, Select, Typography } from 'antd'
+import { ItemType } from 'antd/es/breadcrumb/Breadcrumb'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
 
-const Header: React.FC = () => {
+export interface HeaderProps {
+  breadcrumbs?: ItemType[]
+}
+
+const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
   const scanStore = useScanStore()
   const scanStoreData = scanStore.scanStoreData
   const { isDark, toggleDarkMode } = useDark()
@@ -28,28 +32,26 @@ const Header: React.FC = () => {
   }
 
   return (
-    <div className="flex h-10 items-center justify-between border-b border-gray-200 px-6 dark:border-gray-700">
+    <div
+      className={cn(
+        'flex min-h-[39px] items-center justify-between border-b border-gray-200 dark:border-gray-700',
+        {
+          'pl-6 pr-[140px]': !isFullscreen,
+          'px-6': isFullscreen,
+        },
+      )}
+    >
       <div className="flex items-center">
-        <Breadcrumb
-          items={[
-            {
-              title: (
-                <Link to="/">
-                  <LeftOutlined className="mr-1 align-middle" />
-                  <span>{t('Select scan object')}</span>
-                </Link>
-              ),
-            },
-            {
-              title: scanStoreData.scanObject.scanObjectName,
-            },
-          ]}
-        />
-        <Text type="secondary" className="ml-2 text-xs">
-          {dayjs(scanStoreData.scanDate).format('YYYY-MM-DD')}
-        </Text>
+        {!!breadcrumbs && (
+          <>
+            <Breadcrumb items={breadcrumbs} />{' '}
+            <Text type="secondary" className="ml-2 text-xs">
+              {dayjs(scanStoreData.scanDate).format('YYYY-MM-DD')}
+            </Text>
+          </>
+        )}
       </div>
-
+      <div className="drag h-full flex-auto"></div>
       <div className="flex items-center space-x-3">
         <Clock />
         <Select

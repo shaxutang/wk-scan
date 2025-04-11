@@ -1,4 +1,4 @@
-import { createHashRouter } from 'react-router-dom'
+import { createHashRouter } from 'react-router'
 import Home from './pages'
 import Objects from './pages/objects'
 import Scan from './pages/scan'

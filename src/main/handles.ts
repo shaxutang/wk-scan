@@ -14,6 +14,7 @@ import {
   HandleType,
   SaveScanDataParams,
   ScanHistory,
+  TitlebarOverlayTheme,
 } from '../types/handle'
 import database from './database'
 import wkrc, { WkrcType } from './wkrc'
@@ -354,6 +355,24 @@ export function expose(app: Electron.App, mainWindow: BrowserWindow) {
     }
     return R.success().setData(false)
   })
+
+  ipcMain.handle(
+    HandleType.TOGGLE_TITLE_BAR_OVERLAY,
+    async (event, theme: TitlebarOverlayTheme) => {
+      if (mainWindow && theme === 'light') {
+        mainWindow.setTitleBarOverlay({
+          color: 'rgba(255,255,255,0)',
+          symbolColor: '#000',
+        })
+      } else {
+        mainWindow.setTitleBarOverlay({
+          color: 'rgba(0,0,0,0)',
+          symbolColor: '#fff',
+        })
+      }
+      return R.success()
+    },
+  )
 }
 
 async function exportScanData(scanObject: ScanObject, scanDate: string) {

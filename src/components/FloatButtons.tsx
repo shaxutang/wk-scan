@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons'
 import { FloatButton, message } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 const FloatButtons: React.FC = () => {
   const { isFullscreen, toggleFullscreenMode } = useFullscreen()

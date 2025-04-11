@@ -14,11 +14,13 @@ class DarkModeStore {
     if (storedIsDark !== null) {
       this.isDark = storedIsDark === 'true'
     }
+    window.electron.toggleTitleBarTheme(this.isDark ? 'dark' : 'light')
     this.updateHtmlClass()
   }
 
   public toggleDarkMode() {
     this.isDark = !this.isDark
+    window.electron.toggleTitleBarTheme(this.isDark ? 'dark' : 'light')
     localStorage.setItem('isDark', this.isDark.toString())
     this.updateHtmlClass()
     this.notify()
