@@ -2,7 +2,6 @@ import LogoPNG from '@/assets/logo.png'
 import Clock from '@/components/Clock'
 import { useDark } from '@/hooks/useDark'
 import { useFullscreen } from '@/hooks/useFullscreen'
-import { useScanStore } from '@/stores/useScanStore'
 import { cn } from '@/utils/css'
 import {
   FullscreenExitOutlined,
@@ -19,7 +18,6 @@ export interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
-  const scanStore = useScanStore()
   const { isDark, toggleDarkMode } = useDark()
   const { isFullscreen, toggleFullscreenMode } = useFullscreen()
   const { t, i18n } = useTranslation()
@@ -35,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
         'sticky top-0 z-50 flex min-h-[39px] items-center justify-between border-b border-gray-200 bg-[#f5f5f5] dark:border-gray-700 dark:bg-[#252525]',
         {
           'pl-3 pr-[140px]': !isFullscreen,
-          'px-6': isFullscreen,
+          'pl-3 pr-6': isFullscreen,
         },
       )}
     >
