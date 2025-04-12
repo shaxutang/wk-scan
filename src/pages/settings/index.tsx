@@ -108,6 +108,7 @@ const Settings = () => {
               label={t('Enable Networking')}
               name="internet"
               valuePropName="checked"
+              className="[&_label]:text-wrap"
             >
               <Switch onChange={(checked) => setInternet(checked)} />
             </Form.Item>
@@ -118,15 +119,14 @@ const Settings = () => {
                   name="host"
                   rules={internet ? [{ required: true }] : []}
                 >
-                  <Input />
+                  <Input placeholder="localhost" allowClear />
                 </Form.Item>
                 <Form.Item
                   label="port"
                   name="port"
-                  wrapperCol={{ span: 3 }}
                   rules={internet ? [{ required: true }] : []}
                 >
-                  <Input />
+                  <Input placeholder="8080" allowClear className="w-24" />
                 </Form.Item>
               </>
             )}
