@@ -32,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
   return (
     <div
       className={cn(
-        'flex min-h-[39px] items-center justify-between border-b border-gray-200 dark:border-gray-700',
+        'sticky top-0 z-50 flex min-h-[39px] items-center justify-between border-b border-gray-200 bg-[#f5f5f5] dark:border-gray-700 dark:bg-[#252525]',
         {
           'pl-3 pr-[140px]': !isFullscreen,
           'px-6': isFullscreen,
