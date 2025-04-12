@@ -109,6 +109,7 @@ export default {
   'Work directory cannot be empty': '工作目录不能为空',
   Save: '保存',
   Language: '语言',
+  'Enable Networking': '启用联网',
   'Select scan object': '选择扫码对象',
   'Scan Rule Delete Description': '此操作不可撤销，规则将被永久删除。',
   'App Title': 'IE-扫码',

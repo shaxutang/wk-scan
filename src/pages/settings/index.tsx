@@ -18,6 +18,10 @@ const Settings = () => {
     loadWkrc()
   }, [])
 
+  useEffect(() => {
+    form.setFieldValue('language', i18n.language)
+  }, [i18n.language])
+
   const loadWkrc = async () => {
     const res = await window.electron.getWkrc()
     if (res.code === RCode.SUCCESS) {
@@ -101,7 +105,7 @@ const Settings = () => {
               </Radio.Group>
             </Form.Item>
             <Form.Item
-              label="启用联网模式"
+              label={t('Enable Networking')}
               name="internet"
               valuePropName="checked"
             >

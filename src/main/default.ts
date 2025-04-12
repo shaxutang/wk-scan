@@ -6,6 +6,8 @@ import { WkrcType } from './wkrc'
 export const wkrc: WkrcType = {
   workDir: join(os.homedir(), 'wk/wk-scan'),
   language: 'zh',
+  internet: false,
+  host: '',
 }
 
 export const scanObjects: ScanObject[] = [

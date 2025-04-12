@@ -114,6 +114,7 @@ export default {
   'Work directory cannot be empty': '作業ディレクトリは空にできません',
   Save: '保存',
   Language: '言語',
+  'Enable Networking': 'ネットワークを有効にする',
   'Select scan object': 'スキャンオブジェクトを選択',
   'Scan Rule Delete Description':
     'この操作は取り消せません。ルールは完全に削除されます。',

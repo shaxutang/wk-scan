@@ -1,3 +1,4 @@
+import LogoPNG from '@/assets/logo.png'
 import Clock from '@/components/Clock'
 import { useDark } from '@/hooks/useDark'
 import { useFullscreen } from '@/hooks/useFullscreen'
@@ -9,7 +10,7 @@ import {
   MoonOutlined,
   SunOutlined,
 } from '@ant-design/icons'
-import { Breadcrumb, Select } from 'antd'
+import { Breadcrumb, Image, Select } from 'antd'
 import { ItemType } from 'antd/es/breadcrumb/Breadcrumb'
 import { useTranslation } from 'react-i18next'
 
@@ -33,15 +34,16 @@ const Header: React.FC<HeaderProps> = ({ breadcrumbs }) => {
       className={cn(
         'flex min-h-[39px] items-center justify-between border-b border-gray-200 dark:border-gray-700',
         {
-          'pl-6 pr-[140px]': !isFullscreen,
+          'pl-3 pr-[140px]': !isFullscreen,
           'px-6': isFullscreen,
         },
       )}
     >
       <div className="flex items-center">
+        <Image src={LogoPNG} preview={false} width={28} height={28} />
         {!!breadcrumbs && (
           <>
-            <Breadcrumb items={breadcrumbs} />
+            <Breadcrumb items={breadcrumbs} className="ml-3" />
           </>
         )}
       </div>

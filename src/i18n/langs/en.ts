@@ -113,6 +113,7 @@ export default {
   'Work directory cannot be empty': 'Work directory cannot be empty',
   Save: 'Save',
   Language: 'Language',
+  'Enable Networking': 'Enable Networking',
   'Select scan object': 'Select scan object',
   'Scan Rule Delete Description':
     'This action cannot be undone. The rule will be permanently deleted.',

@@ -151,19 +151,32 @@ export function expose(app: Electron.App, mainWindow: BrowserWindow) {
           i18n[wkrc.get().language].duplicateQrcode,
         )
       }
-      if (wkrc.get().internet) {
-        fetch(
-          `http://${wkrc.get().host}:${wkrc.get().port}/scan/qrcode/create`,
-          {
+      chain.push(data).commit()
+      // 写入本地
+      await scanDB.write()
+
+      // 发送数据到服务器
+      const { internet, host, port } = wkrc.get()
+      if (internet && !!host && !!port) {
+        setImmediate(() => {
+          const address = `${host}:${port}`
+          const regex =
+            /^(localhost|(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}|(\d{1,3}\.){3}\d{1,3}))(?::(\d{1,5}))?$/
+          const match = address.match(regex)
+          if (!match) return
+          fetch(`http://${address}/scan/qrcode/create`, {
             method: 'POST',
             body: JSON.stringify(data),
-          },
-        ).then((res) => {
-          console.log(res.json())
+            headers: { 'Content-Type': 'application/json' },
+          })
+            .then((res) => {
+              console.log('result: ', res.json)
+            })
+            .catch((err) => {
+              console.error('Async fetch failed: ', err)
+            })
         })
       }
-      chain.push(data).commit()
-      await scanDB.write()
       return R.success()
     },
   )
